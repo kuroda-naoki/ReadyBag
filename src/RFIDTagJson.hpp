@@ -14,6 +14,7 @@ public:
     String getNameFromTagId(const char* tagID);
     bool addTagFromJson(const char* name, const char* tagID);
     bool deleteTagFromJson(const char* tagID);
+    int getJsonElementCount();
     String[] listTag();
 };
 
@@ -206,4 +207,33 @@ bool RFIDTagJson::deleteTagFromJson(const char* tagID) {
 
     file.close();  // ファイル操作完了後は閉じる
     return true;   // 成功した場合はtrueを返す
+}
+
+// JSONファイル内の要素数を取得する関数
+int RFIDTagJson::getJsonElementCount() {
+    if (!SPIFFS.begin()) {
+        return -1;
+    }
+
+    if (!SPIFFS.exists(filePath)) {
+        return -1;
+    }
+
+    File file = SPIFFS.open(filePath, FILE_READ);
+    if (!file) {
+        return -1;
+    }
+
+    StaticJsonDocument<1024> doc;  // Adjust size according to your needs
+    DeserializationError error = deserializeJson(doc, file);
+    if (error) {
+        file.close();
+        return -1;
+    }
+    file.close();
+
+    // Use size() method to get the number of elements in the JSON object
+    int elementCount = doc.size();
+
+    return elementCount;
 }
