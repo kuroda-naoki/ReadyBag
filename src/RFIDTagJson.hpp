@@ -101,3 +101,57 @@ String RFIDTagJson::getNameFromTagId(const char* tagID) {
     // 指定されたタグIDに対応する名前が見つからなかった場合、空文字列を返します。
     return "";
 }
+
+// タグ情報を追加する関数
+bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
+    // Jsonファイルが存在しない場合は何もしない
+    if (!SPIFFS.exists(JSON_FILE)) {
+        return false;
+    }
+
+    File file = SPIFFS.open(JSON_FILE, FILE_READ);
+    // ファイル読み取り失敗時
+    if (!file) {
+        return false;
+    }
+
+    StaticJsonDocument<1024> doc;  // JSONドキュメントを作成します。
+    DeserializationError error = deserializeJson(doc, file);
+    // ファイル変換失敗時
+    if (error) {
+        file.close();
+        return false;
+    }
+    file.close();  // ファイル読み込み完了後は閉じる
+
+    // jsonファイルが存在する場合、その内容を読み込みます。
+    if (SPIFFS.exists(JSON_FILE)) {
+        File file = SPIFFS.open(JSON_FILE, FILE_READ);
+        // ファイル読み取り失敗時
+        if (!file) {
+            return;
+        }
+        // ファイル変換失敗時
+        if (deserializeJson(doc, file) == 0) {
+        }
+        file.close();
+    }
+
+    // 新しいタグ情報を追加します。
+    doc[name] = tagID;
+
+    // 変更をファイルに書き戻す
+    File file = SPIFFS.open(JSON_FILE, FILE_WRITE);
+    // ファイル書き込み失敗時
+    if (!file) {
+        return false;
+    }
+
+    // ファイル変換失敗時
+    if (serializeJson(doc, file) == 0) {
+        file.close();
+        return false;
+    }
+    file.close();
+    return true;
+}
