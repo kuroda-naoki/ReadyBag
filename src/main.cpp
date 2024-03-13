@@ -19,7 +19,7 @@
 
 #include "RFIDTagJson.hpp"
 
-RFIDTagJson rfidTagJson;
+RFIDTagJson tagJson;
 
 // ダイヤルポジション変数
 long oldPosition = -999;
