@@ -5,7 +5,7 @@
 class RFIDUart {
 public:
     RFIDUart();
-    void begin();
+    void init();
     void update();
     void send(const char* data);
     String receive();
@@ -24,7 +24,7 @@ RFIDUart::RFIDUart() {
 }
 
 // シリアル通信の初期化
-void RFIDUart::begin() {
+void RFIDUart::init() {
     // 2ピンをRX(受信), 1ピンをTX(送信)にする
     Serial2.begin(115200, SERIAL_8N1, 2, 1);
 }
