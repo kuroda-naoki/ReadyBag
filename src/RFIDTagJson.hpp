@@ -215,11 +215,11 @@ int RFIDTagJson::getJsonElementCount() {
         return -1;
     }
 
-    if (!SPIFFS.exists(filePath)) {
+    if (!SPIFFS.exists(JSON_FILE)) {
         return -1;
     }
 
-    File file = SPIFFS.open(filePath, FILE_READ);
+    File file = SPIFFS.open(JSON_FILE, FILE_READ);
     if (!file) {
         return -1;
     }
