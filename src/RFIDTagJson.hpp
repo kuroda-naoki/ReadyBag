@@ -65,3 +65,39 @@ bool RFIDTagJson::isTagIdExists(const char* tagID) {
     // 指定されたタグIDが見つからなかった場合
     return false;
 }
+
+// タグIDから名前を取得する関数
+String RFIDTagJson::getNameFromTagId(const char* tagID) {
+    // jsonファイルが存在しない場合、名前は見つかりません。
+    if (!SPIFFS.exists(JSON_FILE)) {
+        return "";
+    }
+
+    // jsonファイルを開きます。
+    File file = SPIFFS.open(JSON_FILE, FILE_READ);
+    // ファイル読み取り失敗時
+    if (!file) {
+        Serial.println("Failed to open file for reading");
+        return "";
+    }
+
+    // ファイルの内容をJSONオブジェクトにデシリアライズします。
+    StaticJsonDocument<1024> doc;
+    // ファイル変換失敗時
+    if (deserializeJson(doc, file) == 0) {
+        file.close();
+        return "";
+    }
+    file.close();
+
+    // JSONオブジェクト内を検索し、タグIDに対応する名前を見つけます。
+    for (JsonPair kv : doc.as<JsonObject>()) {
+        if (strcmp(kv.value().as<const char*>(), tagID) == 0) {
+            // 指定されたタグIDに対応する名前が見つかった場合、名前を返します。
+            return String(kv.key().c_str());
+        }
+    }
+
+    // 指定されたタグIDに対応する名前が見つからなかった場合、空文字列を返します。
+    return "";
+}
