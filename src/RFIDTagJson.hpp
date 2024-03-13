@@ -25,7 +25,6 @@ public:
 
 RFIDTagJson::RFIDTagJson() {
     if (!SPIFFS.begin()) {
-        // Serial.println("SPIFFS Mount Failed");
         return;
     }
 }
@@ -48,7 +47,6 @@ bool RFIDTagJson::isTagIdExists(const char* tagID) {
     StaticJsonDocument<1024> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error) {
-        // Serial.println("Failed to deserialize JSON");
         file.close();
         return false;
     }
@@ -77,7 +75,6 @@ String RFIDTagJson::getNameFromTagId(const char* tagID) {
     File file = SPIFFS.open(JSON_FILE, FILE_READ);
     // ファイル読み取り失敗時
     if (!file) {
-        Serial.println("Failed to open file for reading");
         return "";
     }
 
@@ -203,7 +200,6 @@ bool RFIDTagJson::deleteTagFromJson(const char* tagID) {
 
     // ファイル変換失敗時
     if (serializeJson(doc, file) == 0) {
-        Serial.println("Failed to write to file");
         file.close();
         return false;
     }
