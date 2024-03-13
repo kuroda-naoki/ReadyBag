@@ -17,6 +17,10 @@
 #include <M5Dial.h>
 #include <M5Unified.h>
 
+#include "RFIDTagJson.hpp"
+
+RFIDTagJson tagJson;
+
 // ダイヤルポジション変数
 long oldPosition = -999;
 long newPosition = 0;
