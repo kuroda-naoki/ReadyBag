@@ -15,7 +15,7 @@ public:
     bool addTagFromJson(const char* name, const char* tagID);
     bool deleteTagFromJson(const char* tagID);
     int getJsonElementCount();
-    String[] listTag();
+    String getNameAtIndex(int index);
 };
 
 // ----------------------------------------------------------------------------------------------------------------------------------
@@ -211,10 +211,6 @@ bool RFIDTagJson::deleteTagFromJson(const char* tagID) {
 
 // JSONファイル内の要素数を取得する関数
 int RFIDTagJson::getJsonElementCount() {
-    if (!SPIFFS.begin()) {
-        return -1;
-    }
-
     if (!SPIFFS.exists(JSON_FILE)) {
         return -1;
     }
@@ -236,4 +232,35 @@ int RFIDTagJson::getJsonElementCount() {
     int elementCount = doc.size();
 
     return elementCount;
+}
+
+// JSONファイル内の指定されたインデックスの名前を取得する関数
+String RFIDTagJson::getNameAtIndex(int index) {
+    if (!SPIFFS.exists(JSON_FILE)) {
+        return "";
+    }
+
+    File file = SPIFFS.open(JSON_FILE, FILE_READ);
+    if (!file) {
+        return "";
+    }
+
+    StaticJsonDocument<1024> doc;  // Adjust size according to your needs
+    DeserializationError error = deserializeJson(doc, file);
+    if (error) {
+        file.close();
+        return "";
+    }
+    file.close();
+
+    int currentIndex = 0;
+    for (JsonPair kv : doc.as<JsonObject>()) {
+        if (currentIndex == index) {
+            return String(
+                kv.key().c_str());  // Return the name at the specified index
+        }
+        currentIndex++;
+    }
+
+    return "";  // Return an empty string if the index is out of range
 }
