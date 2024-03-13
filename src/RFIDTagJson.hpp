@@ -155,3 +155,59 @@ bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
     file.close();
     return true;
 }
+
+// タグ情報を削除する関数
+bool RFIDTagJson::deleteTagFromJson(const char* tagID) {
+    // Jsonファイルが存在しない場合は何もしない
+    if (!SPIFFS.exists(JSON_FILE)) {
+        return false;
+    }
+
+    File file = SPIFFS.open(JSON_FILE, FILE_READ);
+    // ファイル読み取り失敗時
+    if (!file) {
+        return false;
+    }
+
+    StaticJsonDocument<1024> doc;
+    DeserializationError error = deserializeJson(doc, file);
+    // ファイル変換失敗時
+    if (error) {
+        file.close();
+        return false;
+    }
+    file.close();  // ファイル読み込み完了後は閉じる
+
+    bool found = false;
+    // JSONオブジェクトを反復処理し、指定されたタグIDを探す
+    for (JsonPair kv : doc.as<JsonObject>()) {
+        if (strcmp(kv.value().as<const char*>(), tagID) == 0) {
+            // エントリを削除
+            doc.remove(kv.key());
+            found = true;
+            break;  // マッチする最初のエントリを削除したらループを抜ける
+        }
+    }
+
+    // タグIDが見つからなかった場合はfalseを返す
+    if (!found) {
+        return false;
+    }
+
+    // 変更をファイルに書き戻す
+    file = SPIFFS.open(JSON_FILE, FILE_WRITE);
+    // ファイル書き込み失敗時
+    if (!file) {
+        return false;
+    }
+
+    // ファイル変換失敗時
+    if (serializeJson(doc, file) == 0) {
+        Serial.println("Failed to write to file");
+        file.close();
+        return false;
+    }
+
+    file.close();  // ファイル操作完了後は閉じる
+    return true;   // 成功した場合はtrueを返す
+}
