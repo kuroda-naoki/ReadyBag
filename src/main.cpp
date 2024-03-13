@@ -14,6 +14,7 @@
 
 #include "main.hpp"
 
+#include <ArduinoJson.h>
 #include <M5Dial.h>
 #include <M5Unified.h>
 
