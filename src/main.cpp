@@ -30,6 +30,9 @@ RFIDUart rfidUart;
 long oldPosition = -999;
 long newPosition = 0;
 
+// かばんの中にものが存在するかどうか
+bool isExistTag = false;
+
 String existTagImage[3] = {PATH_MENU_GREEN_BELL, PATH_MENU_GREEN_SETTING,
                            PATH_MENU_GREEN_ADD};
 int existTagImageLength = sizeof(existTagImage) / sizeof(existTagImage[0]);
@@ -118,22 +121,10 @@ void loop_menu() {
 
     // ダイヤルがひねられたときの処理
     if (newPosition != oldPosition) {
-        // ダイヤルを時計回りに回したとき
-        if (newPosition - oldPosition > 0) {
-            existTagImageIndex++;
-            if (existTagImageIndex >= existTagImageLength) {
-                existTagImageIndex = 0;
-            }
-        }
-        // ダイヤルを反時計回りに回したとき
-        else if (newPosition - oldPosition < 0) {
-            existTagImageIndex--;
-            if (existTagImageIndex < 0) {
-                existTagImageIndex = existTagImageLength - 1;
-            }
-        }
-        oldPosition = newPosition;
         M5Dial.Speaker.tone(8000, 20);
+        changeImageIndex(existTagImageIndex, existTagImageLength,
+                         newPosition - oldPosition);
+        oldPosition = newPosition;
         M5.Lcd.drawJpgFile(SPIFFS, existTagImage[existTagImageIndex], 0, 0);
     }
 
@@ -151,4 +142,23 @@ void loop_menu() {
                 break;
         }
     }
+}
+
+// 画像のインデックスを変更する関数
+int changeImageIndex(int index, int length, int direction) {
+    // ダイヤルを時計回りに回したとき
+    if (direction > 0) {
+        index++;
+        if (index >= length) {
+            index = 0;
+        }
+    }
+    // ダイヤルを反時計回りに回したとき
+    else if (direction < 0) {
+        index--;
+        if (index < 0) {
+            index = length - 1;
+        }
+    }
+    return index;
 }
