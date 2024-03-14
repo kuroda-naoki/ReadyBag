@@ -48,13 +48,10 @@ bool isBuzzerOn = true;
 // メニュー画面の画像配置
 String existTagImage[3] = {PATH_MENU_GREEN_BELL, PATH_MENU_GREEN_SETTING,
                            PATH_MENU_GREEN_ADD};
-int existTagImageLength = sizeof(existTagImage) / sizeof(existTagImage[0]);
-int existTagImageIndex = 0;
 String notExistTagImage[3] = {PATH_MENU_RED_BELL, PATH_MENU_RED_SETTING,
                               PATH_MENU_RED_ADD};
-int notExistTagImageLength =
-    sizeof(notExistTagImage) / sizeof(notExistTagImage[0]);
-int notExistTagImageIndex = 0;
+int tagImageLength = sizeof(existTagImage) / sizeof(existTagImage[0]);
+int tagImageIndex = 0;
 
 // 設定画面の画像配置
 String offOffImage[3] = {PATH_SETTING_TOP_OFF_OFF, PATH_SETTING_RIGHT_OFF_OFF,
@@ -81,7 +78,7 @@ enum Loops
 Loops currentLoops = MENU;
 
 // 各画面のループ関数
-void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex);
+void loop_menu();
 void loop_setting();
 void loop_addTag();
 void loop_tagList();
@@ -113,13 +110,7 @@ void loop() {
     // 状態によりループ関数を切り替える
     switch (currentLoops) {
         case MENU:
-            if (isExistTag) {
-                loop_menu(existTagImage, existTagImageLength,
-                          existTagImageIndex);
-            } else {
-                loop_menu(notExistTagImage, notExistTagImageLength,
-                          notExistTagImageIndex);
-            }
+            loop_menu();
             break;
         case SETTING:
             loop_setting();
@@ -154,7 +145,7 @@ void loop() {
 }
 
 // メニュー画面のループ関数
-void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex) {
+void loop_menu() {
     newPosition = M5Dial.Encoder.read();
 
     // ダイヤルがひねられたときの処理
@@ -164,9 +155,11 @@ void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex) {
                                          newPosition - oldPosition);
         oldPosition = newPosition;
         // 選択肢をもとに画像の切り替え
-        M5.Lcd.drawJpgFile(SPIFFS, tagImage[tagImageIndex], 0, 0);
-        existTagImageIndex = tagImageIndex;
-        notExistTagImageIndex = tagImageIndex;
+        if (isExistTag) {
+            M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
+        } else {
+            M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
+        }
     }
 
     // ボタンが押されたときの処理
