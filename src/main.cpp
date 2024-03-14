@@ -30,6 +30,17 @@ RFIDUart rfidUart;
 long oldPosition = -999;
 long newPosition = 0;
 
+String existTagImage[3] = {PATH_MENU_GREEN_BELL, PATH_MENU_GREEN_SETTING,
+                           PATH_MENU_GREEN_ADD};
+int existTagImageLength = sizeof(existTagImage) / sizeof(existTagImage[0]);
+int existTagImageIndex = 0;
+
+String notExistTagImage[3] = {PATH_MENU_RED_BELL, PATH_MENU_RED_SETTING,
+                              PATH_MENU_RED_ADD};
+int notExistTagImageLength =
+    sizeof(notExistTagImage) / sizeof(notExistTagImage[0]);
+int notExistTagImageIndex = 0;
+
 // メニュー画面の選択肢
 enum Loops
 {
@@ -65,6 +76,8 @@ void loop() {
     // 状態によりループ関数を切り替える
     switch (currentLoops) {
         case MENU:
+            existTagImageIndex = 0;
+            notExistTagImageIndex = 0;
             loop_menu();
             break;
         case SETTING:
@@ -97,4 +110,36 @@ void loop() {
 
     // 遅延を入れないとダイヤルの挙動がおかしくなる
     delay(1);
+}
+
+void loop_menu() {
+    newPosition = M5Dial.Encoder.read();
+
+    // ダイヤルがひねられたときの処理
+    if (newPosition != oldPosition) {
+        // ダイヤルを時計回りに回したとき
+        if (newPosition - oldPosition > 0) {
+            existTagImageIndex++;
+            if (existTagImageIndex >= existTagImageLength) {
+                existTagImageIndex = 0;
+            }
+        }
+        // ダイヤルを反時計回りに回したとき
+        else if (newPosition - oldPosition < 0) {
+            existTagImageIndex--;
+            if (existTagImageIndex < 0) {
+                existTagImageIndex = existTagImageLength - 1;
+            }
+        }
+        oldPosition = newPosition;
+        M5Dial.Speaker.tone(8000, 20);
+        M5.Lcd.drawJpgFile(SPIFFS, existTagImage[existTagImageIndex], 0, 0);
+    }
+
+    // ボタンが押されたときの処理
+    if (M5Dial.BtnA.wasPressed()) {
+        currentLoops = SETTING;
+        M5Dial.Speaker.tone(8000, 20);
+        M5.Lcd.drawJpgFile(SPIFFS, PATH_SETTING_TOP_OFF_OFF, 0, 0);
+    }
 }
