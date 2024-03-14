@@ -1,11 +1,24 @@
 #pragma once
 
-#define PATH_MENU_GREEN                  "/menu_green.jpg"
-#define PATH_MENU_GREEN_BUZZER_SELECTED  "/menu_green_buzzer_selected.jpg"
-#define PATH_MENU_GREEN_ADD_SELECTED     "/menu_green_led_selected.jpg"
-#define PATH_MENU_GREEN_SETTING_SELECTED "/menu_green_delete_selected.jpg"
+// メニュー画面の画像ファイルパス
+#define PATH_MENU_GREEN_ADD     "/home_green_1.jpg"
+#define PATH_MENU_GREEN_BELL    "/home_green_2.jpg"
+#define PATH_MENU_GREEN_SETTING "/home_green_3.jpg"
+#define PATH_MENU_RED_ADD       "/home_red_1.jpg"
+#define PATH_MENU_RED_BELL      "/home_red_2.jpg"
+#define PATH_MENU_RED_SETTING   "/home_red_3.jpg"
 
-#define PATH_MENU_RED                  "/menu_red.jpg"
-#define PATH_MENU_RED_BUZZER_SELECTED  "/menu_red_buzzer_selected.jpg"
-#define PATH_MENU_RED_ADD_SELECTED     "/menu_red_led_selected.jpg"
-#define PATH_MENU_RED_SETTING_SELECTED "/menu_red_delete_selected.jpg"
+// 設定画面の画像ファイルパス
+// 選択中の項目、LEDのON/OFF、ブザーのON/OFF
+#define PATH_SETTING_LEFT_OFF_OFF  "/setting_left_off_off.jpg"
+#define PATH_SETTING_LEFT_ON_OFF   "/setting_left_off_on.jpg"
+#define PATH_SETTING_LEFT_OFF_ON   "/setting_left_on_off.jpg"
+#define PATH_SETTING_LEFT_ON_ON    "/setting_left_on_on.jpg"
+#define PATH_SETTING_TOP_OFF_OFF   "/setting_top_off_off.jpg"
+#define PATH_SETTING_TOP_ON_OFF    "/setting_top_off_on.jpg"
+#define PATH_SETTING_TOP_OFF_ON    "/setting_top_on_off.jpg"
+#define PATH_SETTING_TOP_ON_ON     "/setting_top_on_on.jpg"
+#define PATH_SETTING_RIGHT_OFF_OFF "/setting_right_off_off.jpg"
+#define PATH_SETTING_RIGHT_ON_OFF  "/setting_right_off_on.jpg"
+#define PATH_SETTING_RIGHT_OFF_ON  "/setting_right_on_off.jpg"
+#define PATH_SETTING_RIGHT_ON_ON   "/setting_right_on_on.jpg"
