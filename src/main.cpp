@@ -30,6 +30,7 @@ RFIDUart rfidUart;
 long oldPosition = -999;
 long newPosition = 0;
 
+// メニュー画面の選択肢
 enum Loops
 {
     MENU,
@@ -38,6 +39,7 @@ enum Loops
     TAGLIST
 };
 
+// 現在の選択肢
 Loops currentLoops = MENU;
 
 // 各画面のループ関数
@@ -60,7 +62,21 @@ void loop() {
     M5Dial.update();
     M5_UPDATE();
 
-    // newPosition = M5Dial.Encoder.read();
+    // 状態によりループ関数を切り替える
+    switch (currentLoops) {
+        case MENU:
+            loop_menu();
+            break;
+        case SETTING:
+            loop_setting();
+            break;
+        case ADDTAG:
+            loop_addTag();
+            break;
+        case TAGLIST:
+            loop_tagList();
+            break;
+    }
 
     // // ダイヤルがひねられたときの処理
     // if (newPosition != oldPosition) {
