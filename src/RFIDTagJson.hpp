@@ -10,6 +10,7 @@
 class RFIDTagJson {
 public:
     RFIDTagJson();
+    void init();
     bool isTagIdExists(const char* tagID);
     String getNameFromTagId(const char* tagID);
     bool addTagFromJson(const char* name, const char* tagID);
@@ -25,9 +26,11 @@ public:
 // ----------------------------------------------------------------------------------------------------------------------------------
 
 RFIDTagJson::RFIDTagJson() {
-    if (!SPIFFS.begin()) {
-        return;
-    }
+}
+
+// SPIFFS初期化関数
+void RFIDTagJson::init() {
+    SPIFFS.begin();
 }
 
 // タグIDが存在するか確認する関数
@@ -81,8 +84,9 @@ String RFIDTagJson::getNameFromTagId(const char* tagID) {
 
     // ファイルの内容をJSONオブジェクトにデシリアライズします。
     StaticJsonDocument<1024> doc;
+    DeserializationError error = deserializeJson(doc, file);
     // ファイル変換失敗時
-    if (deserializeJson(doc, file) == 0) {
+    if (error) {
         file.close();
         return "";
     }
@@ -127,10 +131,11 @@ bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
         File file = SPIFFS.open(JSON_FILE, FILE_READ);
         // ファイル読み取り失敗時
         if (!file) {
-            return;
+            return false;
         }
+        error = deserializeJson(doc, file);
         // ファイル変換失敗時
-        if (deserializeJson(doc, file) == 0) {
+        if (error) {
         }
         file.close();
     }
@@ -139,7 +144,7 @@ bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
     doc[name] = tagID;
 
     // 変更をファイルに書き戻す
-    File file = SPIFFS.open(JSON_FILE, FILE_WRITE);
+    file = SPIFFS.open(JSON_FILE, FILE_WRITE);
     // ファイル書き込み失敗時
     if (!file) {
         return false;
