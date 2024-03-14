@@ -225,6 +225,73 @@ void loop_addTag() {
         showList(categoryIndex);
         oldPosition = newPosition;
     }
+
+    // ボタンが押されたときの処理
+    if (M5Dial.BtnA.wasPressed()) {
+        int count = 0;
+        while (true) {
+            count++;
+            M5Dial.Display.fillScreen(0x42AE);
+            if (count % 3 == 0) {
+                M5Dial.Display.drawString("タグをかざしてください.",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2);
+            } else if (count % 3 == 1) {
+                M5Dial.Display.drawString("タグをかざしてください..",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2);
+            } else if (count % 3 == 2) {
+                M5Dial.Display.drawString("タグをかざしてください...",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2);
+            }
+            String tagId = rfidUart.getExistTagId();
+            // タグIDが取得できた場合
+            if (tagId != "") {
+                // すでに登録されているタグIDの場合
+                if (tagJson.isTagIdExists(tagId.c_str())) {
+                    M5Dial.Display.fillScreen(0x42AE);
+                    M5Dial.Display.drawString("そのタグは",
+                                              M5Dial.Display.width() / 2,
+                                              M5Dial.Display.height() / 2 - 20);
+                    M5Dial.Display.drawString("すでに登録されています.",
+                                              M5Dial.Display.width() / 2,
+                                              M5Dial.Display.height() / 2) +
+                        20;
+                    delay(2000);
+                    continue;
+                }
+                // 未登録タグIDの場合
+                else {
+                    // タグIDを登録
+                    if (tagJson.addTagFromJson(category[categoryIndex].c_str(),
+                                               tagId.c_str())) {
+                        M5Dial.Display.fillScreen(0x42AE);
+                        M5Dial.Display.drawString(
+                            category[categoryIndex], M5Dial.Display.width() / 2,
+                            M5Dial.Display.height() / 2 - 20);
+                        M5Dial.Display.drawString("を登録しました。",
+                                                  M5Dial.Display.width() / 2,
+                                                  M5Dial.Display.height() / 2) +
+                            20;
+                        delay(2000);
+                        break;
+                    }
+                    // タグIDの登録に失敗した場合
+                    else {
+                        M5Dial.Display.fillScreen(0x42AE);
+                        M5Dial.Display.drawString("登録に失敗しました.",
+                                                  M5Dial.Display.width() / 2,
+                                                  M5Dial.Display.height() / 2);
+                        delay(2000);
+                        break;
+                    }
+                }
+            }
+            delay(500);
+        }
+        currentLoops = MENU;
+    }
 }
 
 // 設定画面の画像を切り替える関数
