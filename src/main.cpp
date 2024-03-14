@@ -147,23 +147,6 @@ void loop() {
             break;
     }
 
-    // // ダイヤルがひねられたときの処理
-    // if (newPosition != oldPosition) {
-    //     oldPosition = newPosition;
-    //     if (newPosition < 0) {
-    //         newPosition *= -1;
-    //     }
-    //     uint8_t num = newPosition % 2;
-    //     M5Dial.Speaker.tone(8000, 20);
-    //     // これを入れると画面が切り替わるたびに黒飛びになる
-    //     // M5Dial.Display.clear();
-    //     if (num == 0) {
-    //         M5.Lcd.drawJpgFile(SPIFFS, "/Menu_red.jpg", 4, 4);
-    //     } else if (num == 1) {
-    //         M5.Lcd.drawJpgFile(SPIFFS, "/Menu_green.jpg", 4, 4);
-    //     }
-    // }
-
     // 遅延を入れないとダイヤルの挙動がおかしくなる
     delay(1);
 }
