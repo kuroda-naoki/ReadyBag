@@ -3,6 +3,8 @@
 作成者 : 黒田 直樹
 
 忘れ物を検知するバッグのコントロール側プログラム
+デバイス : M5Dial
+外部ペリフェラル : NeoPixel(WS2812B)
 
 ・機能
     忘れ物の登録、削除、確認を行う
@@ -19,6 +21,7 @@
 
 #include "RFIDTagJson.hpp"
 #include "RFIDUart.hpp"
+#include "pathImageFile.h"
 
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
