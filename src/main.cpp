@@ -240,15 +240,14 @@ void loop_addTag() {
             count++;
             M5Dial.Display.fillScreen(0x4208);
             if (count % 3 == 0) {
-                M5Dial.Display.drawString("タグをかざしてください.",
-                                          M5Dial.Display.width() / 2,
+                M5Dial.Display.drawString("捜索中.", M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
             } else if (count % 3 == 1) {
-                M5Dial.Display.drawString("タグをかざしてください..",
+                M5Dial.Display.drawString("捜索中..",
                                           M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
             } else if (count % 3 == 2) {
-                M5Dial.Display.drawString("タグをかざしてください...",
+                M5Dial.Display.drawString("捜索中...",
                                           M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
             }
