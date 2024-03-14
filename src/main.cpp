@@ -138,8 +138,16 @@ void loop_menu() {
 
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
-        currentLoops = SETTING;
-        M5Dial.Speaker.tone(8000, 20);
-        M5.Lcd.drawJpgFile(SPIFFS, PATH_SETTING_TOP_OFF_OFF, 0, 0);
+        switch (existTagImageIndex) {
+            case 0:
+                currentLoops = TAGLIST;
+                break;
+            case 1:
+                currentLoops = SETTING;
+                break;
+            case 2:
+                currentLoops = ADDTAG;
+                break;
+        }
     }
 }
