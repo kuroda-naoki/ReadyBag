@@ -10,6 +10,7 @@
 class RFIDTagJson {
 public:
     RFIDTagJson();
+    void init();
     bool isTagIdExists(const char* tagID);
     String getNameFromTagId(const char* tagID);
     bool addTagFromJson(const char* name, const char* tagID);
@@ -25,9 +26,11 @@ public:
 // ----------------------------------------------------------------------------------------------------------------------------------
 
 RFIDTagJson::RFIDTagJson() {
-    if (!SPIFFS.begin()) {
-        return;
-    }
+}
+
+// SPIFFS初期化関数
+void RFIDTagJson::init() {
+    SPIFFS.begin();
 }
 
 // タグIDが存在するか確認する関数
