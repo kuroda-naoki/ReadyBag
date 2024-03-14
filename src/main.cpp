@@ -238,19 +238,6 @@ void loop_addTag() {
         M5Dial.Display.setTextColor(60388);
         while (true) {
             count++;
-            if (count >= 10) {
-                M5Dial.Display.fillScreen(0x4208);
-                M5Dial.Display.setTextSize(0.6);
-                M5Dial.Display.drawString("時間内にタグが",
-                                          M5Dial.Display.width() / 2,
-                                          M5Dial.Display.height() / 2 - 14);
-                M5Dial.Display.drawString("見つかりませんでした",
-                                          M5Dial.Display.width() / 2,
-                                          M5Dial.Display.height() / 2 + 14);
-                M5Dial.Display.setTextSize(1);
-                delay(2000);
-                break;
-            }
             M5Dial.Display.fillScreen(0x4208);
             if (count % 3 == 0) {
                 M5Dial.Display.drawString("捜索中.", M5Dial.Display.width() / 2,
@@ -263,6 +250,19 @@ void loop_addTag() {
                 M5Dial.Display.drawString("捜索中...",
                                           M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
+            }
+            if (count >= 10) {
+                M5Dial.Display.fillScreen(0x4208);
+                M5Dial.Display.setTextSize(0.6);
+                M5Dial.Display.drawString("時間内にタグが",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2 - 14);
+                M5Dial.Display.drawString("見つかりませんでした",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2 + 14);
+                M5Dial.Display.setTextSize(1);
+                delay(2000);
+                break;
             }
             String tagId = rfidUart.getExistTagId();
             // タグIDが取得できた場合
