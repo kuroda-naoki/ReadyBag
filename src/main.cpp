@@ -30,6 +30,16 @@ RFIDUart rfidUart;
 long oldPosition = -999;
 long newPosition = 0;
 
+enum Loops
+{
+    MENU,
+    SETTING,
+    ADDTAG,
+    TAGLIST
+};
+
+Loops currentLoops = MENU;
+
 // 各画面のループ関数
 void loop_menu();
 void loop_setting();
