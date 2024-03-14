@@ -76,6 +76,8 @@ enum Loops
 
 // 現在の選択肢
 Loops currentLoops = MENU;
+// ひとつ前の選択肢
+Loops oldLoops = SETTING;
 
 // 各画面のループ関数
 void loop_menu();
@@ -110,12 +112,34 @@ void loop() {
     // 状態によりループ関数を切り替える
     switch (currentLoops) {
         case MENU:
+            if (currentLoops != oldLoops) {
+                oldPosition = newPosition;
+                if (isExistTag) {
+                    M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0,
+                                       0);
+                } else {
+                    M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex],
+                                       0, 0);
+                }
+                oldLoops = currentLoops;
+            }
             loop_menu();
             break;
         case SETTING:
+            if (currentLoops != oldLoops) {
+                oldPosition = newPosition;
+                changeOnOffImage(settingImageIndex);
+                oldLoops = currentLoops;
+            }
             loop_setting();
             break;
         case ADDTAG:
+            if (currentLoops != oldLoops) {
+                M5Dial.Display.fillScreen(0x4208);
+                oldPosition = newPosition;
+                showList(categoryIndex);
+                oldLoops = currentLoops;
+            }
             loop_addTag();
             break;
         case TAGLIST:
@@ -167,15 +191,12 @@ void loop_menu() {
         M5Dial.Speaker.tone(8000, 20);
         switch (tagImageIndex) {
             case 0:
-                oldPosition = -999;
                 currentLoops = TAGLIST;
                 break;
             case 1:
-                oldPosition = -999;
                 currentLoops = SETTING;
                 break;
             case 2:
-                oldPosition = -999;
                 currentLoops = ADDTAG;
                 break;
         }
@@ -200,7 +221,6 @@ void loop_setting() {
     if (M5Dial.BtnA.wasPressed()) {
         switch (settingImageIndex) {
             case 0:
-                oldPosition = -999;
                 currentLoops = MENU;
                 break;
             case 1:
