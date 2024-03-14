@@ -252,6 +252,7 @@ void loop_addTag() {
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
         int count = 0;
+        M5Dial.Display.setTextColor(60388);
         while (true) {
             count++;
             M5Dial.Display.fillScreen(0x4208);
@@ -362,9 +363,9 @@ void showList(int index) {
         int y = ((M5Dial.Display.height() / 2) + HEIGHT_INTERVAL * i) -
                 index * HEIGHT_INTERVAL;
         if (i == index) {
-            M5Dial.Display.setTextColor(RED);
+            M5Dial.Display.setTextColor(60388);
         } else {
-            M5Dial.Display.setTextColor(GREEN);
+            M5Dial.Display.setTextColor(WHITE);
         }
         M5Dial.Display.drawString(category[i], x, y);
     }
