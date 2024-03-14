@@ -21,6 +21,7 @@
 
 #include "RFIDTagJson.hpp"
 #include "RFIDUart.hpp"
+#include "pathImageFile.h"
 
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
