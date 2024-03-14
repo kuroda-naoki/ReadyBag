@@ -317,6 +317,26 @@ void changeOnOffImage(int index) {
     }
 }
 
+// タグリスト画面のループ関数
+void loop_tagList() {
+    newPosition = M5Dial.Encoder.read();
+
+    // ダイヤルがひねられたときの処理
+    if (newPosition != oldPosition) {
+        M5Dial.Speaker.tone(8000, 20);
+        categoryIndex = changeImageIndex(categoryIndex, categoryLength,
+                                         newPosition - oldPosition);
+        M5Dial.Display.fillScreen(0x4208);
+        showList(categoryIndex);
+        oldPosition = newPosition;
+    }
+
+    // ボタンが押されたときの処理
+    if (M5Dial.BtnA.wasPressed()) {
+        currentLoops = MENU;
+    }
+}
+
 // リストを表示する関数
 void showList(int index) {
     for (int i = 0; i < categoryLength; i++) {
