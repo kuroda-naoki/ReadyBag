@@ -30,6 +30,24 @@ RFIDUart rfidUart;
 long oldPosition = -999;
 long newPosition = 0;
 
+// メニュー画面の選択肢
+enum Loops
+{
+    MENU,
+    SETTING,
+    ADDTAG,
+    TAGLIST
+};
+
+// 現在の選択肢
+Loops currentLoops = MENU;
+
+// 各画面のループ関数
+void loop_menu();
+void loop_setting();
+void loop_addTag();
+void loop_tagList();
+
 void setup() {
     M5_BEGIN();
     auto cfg = M5.config();
@@ -44,24 +62,38 @@ void loop() {
     M5Dial.update();
     M5_UPDATE();
 
-    newPosition = M5Dial.Encoder.read();
-
-    // ダイヤルがひねられたときの処理
-    if (newPosition != oldPosition) {
-        oldPosition = newPosition;
-        if (newPosition < 0) {
-            newPosition *= -1;
-        }
-        uint8_t num = newPosition % 2;
-        M5Dial.Speaker.tone(8000, 20);
-        // これを入れると画面が切り替わるたびに黒飛びになる
-        // M5Dial.Display.clear();
-        if (num == 0) {
-            M5.Lcd.drawJpgFile(SPIFFS, "/Menu_red.jpg", 4, 4);
-        } else if (num == 1) {
-            M5.Lcd.drawJpgFile(SPIFFS, "/Menu_green.jpg", 4, 4);
-        }
+    // 状態によりループ関数を切り替える
+    switch (currentLoops) {
+        case MENU:
+            loop_menu();
+            break;
+        case SETTING:
+            loop_setting();
+            break;
+        case ADDTAG:
+            loop_addTag();
+            break;
+        case TAGLIST:
+            loop_tagList();
+            break;
     }
+
+    // // ダイヤルがひねられたときの処理
+    // if (newPosition != oldPosition) {
+    //     oldPosition = newPosition;
+    //     if (newPosition < 0) {
+    //         newPosition *= -1;
+    //     }
+    //     uint8_t num = newPosition % 2;
+    //     M5Dial.Speaker.tone(8000, 20);
+    //     // これを入れると画面が切り替わるたびに黒飛びになる
+    //     // M5Dial.Display.clear();
+    //     if (num == 0) {
+    //         M5.Lcd.drawJpgFile(SPIFFS, "/Menu_red.jpg", 4, 4);
+    //     } else if (num == 1) {
+    //         M5.Lcd.drawJpgFile(SPIFFS, "/Menu_green.jpg", 4, 4);
+    //     }
+    // }
 
     // 遅延を入れないとダイヤルの挙動がおかしくなる
     delay(1);
