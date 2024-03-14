@@ -87,6 +87,11 @@ void setup() {
     auto cfg = M5.config();
     M5Dial.begin(cfg, true, false);
 
+    M5Dial.Display.setTextColor(GREEN);
+    M5Dial.Display.setTextDatum(middle_center);
+    M5Dial.Display.setTextFont(&fonts::lgfxJapanGothic_36);
+    M5Dial.Display.setTextSize(1);
+
     SPIFFS.begin();
 
     M5_UPDATE();
@@ -206,6 +211,7 @@ void loop_setting() {
 // タグ登録画面のループ関数
 void loop_addTag() {
     newPosition = M5Dial.Encoder.read();
+    M5Dial.Display.fillScreen(0x42AE);
 }
 
 // 設定画面の画像を切り替える関数
