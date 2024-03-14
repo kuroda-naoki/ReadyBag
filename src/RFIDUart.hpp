@@ -15,6 +15,7 @@ public:
     RFIDUart();
     void init();
     void startRFIDReader();
+    String getExistTagId();
     void update();
     void send(const char* data);
     String receive();
@@ -41,4 +42,18 @@ void RFIDUart::init() {
 void RFIDUart::startRFIDReader() {
     // RFIDリーダーの起動コマンドを送信
     Serial2.println(RFID_READER_START_COMMAND);
+}
+
+// RFIDリーダーから存在するタグIDの取得
+String RFIDUart::getExistTagId() {
+    String tagId = "";
+    while (Serial2.available()) {
+        char receivedChar = Serial2.read();
+        if (receivedChar == '\n') {
+            return tagId;
+        } else {
+            tagId += receivedChar;
+        }
+    }
+    return tagId;
 }
