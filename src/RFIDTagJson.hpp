@@ -141,7 +141,7 @@ bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
     doc[name] = tagID;
 
     // 変更をファイルに書き戻す
-    File file = SPIFFS.open(JSON_FILE, FILE_WRITE);
+    file = SPIFFS.open(JSON_FILE, FILE_WRITE);
     // ファイル書き込み失敗時
     if (!file) {
         return false;
