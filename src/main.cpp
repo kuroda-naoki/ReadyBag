@@ -26,6 +26,9 @@
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
 
+// 登録するもののカテゴリ
+const String category[] = {"サイフ", "カギ", "スマホ", "パソコン", "ノート"};
+
 // ダイヤルポジション変数
 long oldPosition = -999;
 long newPosition = 0;
