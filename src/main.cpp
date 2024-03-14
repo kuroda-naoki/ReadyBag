@@ -238,6 +238,17 @@ void loop_addTag() {
         M5Dial.Display.setTextColor(60388);
         while (true) {
             count++;
+            if (count >= 10) {
+                M5Dial.Display.fillScreen(0x4208);
+                M5Dial.Display.drawString("時間内にタグが",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2 - 20);
+                M5Dial.Display.drawString("見つかりませんでした",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2 + 20);
+                delay(2000);
+                break;
+            }
             M5Dial.Display.fillScreen(0x4208);
             if (count % 3 == 0) {
                 M5Dial.Display.drawString("捜索中.", M5Dial.Display.width() / 2,
@@ -265,7 +276,7 @@ void loop_addTag() {
                                               M5Dial.Display.height() / 2) +
                         20;
                     delay(2000);
-                    continue;
+                    break;
                 }
                 // 未登録タグIDの場合
                 else {
