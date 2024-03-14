@@ -174,12 +174,15 @@ void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex) {
         M5Dial.Speaker.tone(8000, 20);
         switch (tagImageIndex) {
             case 0:
+                oldPosition = -999;
                 currentLoops = TAGLIST;
                 break;
             case 1:
+                oldPosition = -999;
                 currentLoops = SETTING;
                 break;
             case 2:
+                oldPosition = -999;
                 currentLoops = ADDTAG;
                 break;
         }
@@ -204,6 +207,7 @@ void loop_setting() {
     if (M5Dial.BtnA.wasPressed()) {
         switch (settingImageIndex) {
             case 0:
+                oldPosition = -999;
                 currentLoops = MENU;
                 break;
             case 1:
@@ -333,6 +337,7 @@ void loop_tagList() {
 
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
+        oldPosition = -999;
         currentLoops = MENU;
     }
 }
