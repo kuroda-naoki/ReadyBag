@@ -9,6 +9,7 @@
 
 // RFIDリーダーの動作コマンド
 #define RFID_READER_START_COMMAND "START"
+#define RFID_READER_END_COMMAND   "END"
 
 class RFIDUart {
 public:
@@ -16,6 +17,7 @@ public:
     void init();
     void startRFIDReader();
     String getExistTagId();
+    void endRFIDReader();
     void update();
     void send(const char* data);
     String receive();
@@ -56,4 +58,10 @@ String RFIDUart::getExistTagId() {
         }
     }
     return tagId;
+}
+
+// RFIDリーダーの終了
+void RFIDUart::endRFIDReader() {
+    // RFIDリーダーの終了コマンドを送信
+    Serial2.println(RFID_READER_END_COMMAND);
 }
