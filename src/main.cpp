@@ -18,8 +18,10 @@
 #include <M5Unified.h>
 
 #include "RFIDTagJson.hpp"
+#include "RFIDUart.hpp"
 
 RFIDTagJson tagJson;
+RFIDUart rfidUart;
 
 // ダイヤルポジション変数
 long oldPosition = -999;
