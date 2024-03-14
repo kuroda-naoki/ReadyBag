@@ -112,6 +112,7 @@ void loop() {
     delay(1);
 }
 
+// メニュー画面のループ関数
 void loop_menu() {
     newPosition = M5Dial.Encoder.read();
 
