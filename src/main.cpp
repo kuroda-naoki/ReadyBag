@@ -86,6 +86,11 @@ void loop_setting();
 void loop_addTag();
 void loop_tagList();
 
+// 各関数
+void changeOnOffImage(int index);
+void showList(int index);
+int changeImageIndex(int index, int length, int direction);
+
 void setup() {
     M5_BEGIN();
     auto cfg = M5.config();
@@ -103,7 +108,7 @@ void setup() {
 
 void loop() {
     M5Dial.update();
-    M5_UPDATE();
+    // M5_UPDATE();
 
     // 状態によりループ関数を切り替える
     switch (currentLoops) {
@@ -166,6 +171,7 @@ void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex) {
 
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
+        M5Dial.Speaker.tone(8000, 20);
         switch (tagImageIndex) {
             case 0:
                 currentLoops = TAGLIST;
@@ -221,7 +227,7 @@ void loop_addTag() {
         M5Dial.Speaker.tone(8000, 20);
         categoryIndex = changeImageIndex(categoryIndex, categoryLength,
                                          newPosition - oldPosition);
-        M5Dial.Display.fillScreen(0x42AE);
+        M5Dial.Display.fillScreen(0x4208);
         showList(categoryIndex);
         oldPosition = newPosition;
     }
@@ -231,7 +237,7 @@ void loop_addTag() {
         int count = 0;
         while (true) {
             count++;
-            M5Dial.Display.fillScreen(0x42AE);
+            M5Dial.Display.fillScreen(0x4208);
             if (count % 3 == 0) {
                 M5Dial.Display.drawString("タグをかざしてください.",
                                           M5Dial.Display.width() / 2,
@@ -250,7 +256,7 @@ void loop_addTag() {
             if (tagId != "") {
                 // すでに登録されているタグIDの場合
                 if (tagJson.isTagIdExists(tagId.c_str())) {
-                    M5Dial.Display.fillScreen(0x42AE);
+                    M5Dial.Display.fillScreen(0x4208);
                     M5Dial.Display.drawString("そのタグは",
                                               M5Dial.Display.width() / 2,
                                               M5Dial.Display.height() / 2 - 20);
@@ -266,7 +272,7 @@ void loop_addTag() {
                     // タグIDを登録
                     if (tagJson.addTagFromJson(category[categoryIndex].c_str(),
                                                tagId.c_str())) {
-                        M5Dial.Display.fillScreen(0x42AE);
+                        M5Dial.Display.fillScreen(0x4208);
                         M5Dial.Display.drawString(
                             category[categoryIndex], M5Dial.Display.width() / 2,
                             M5Dial.Display.height() / 2 - 20);
@@ -279,7 +285,7 @@ void loop_addTag() {
                     }
                     // タグIDの登録に失敗した場合
                     else {
-                        M5Dial.Display.fillScreen(0x42AE);
+                        M5Dial.Display.fillScreen(0x4208);
                         M5Dial.Display.drawString("登録に失敗しました.",
                                                   M5Dial.Display.width() / 2,
                                                   M5Dial.Display.height() / 2);
