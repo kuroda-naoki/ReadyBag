@@ -23,12 +23,16 @@
 #include "RFIDUart.hpp"
 #include "pathImageFile.h"
 
+#define HEIGHT_INTERVAL 40
+
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
 
 // 登録するもののカテゴリ
-const String category[] = {"サイフ", "カギ",         "スマホ", "パソコン",
-                           "ノート", "カードケース", "その他"};
+String category[] = {"サイフ", "カギ",         "スマホ", "パソコン",
+                     "ノート", "カードケース", "その他"};
+int categoryLength = sizeof(category) / sizeof(category[0]);
+int categoryIndex = 0;
 
 // ダイヤルポジション変数
 long oldPosition = -999;
@@ -87,7 +91,7 @@ void setup() {
     auto cfg = M5.config();
     M5Dial.begin(cfg, true, false);
 
-    M5Dial.Display.setTextColor(GREEN);
+    M5Dial.Display.setTextColor(WHITE);
     M5Dial.Display.setTextDatum(middle_center);
     M5Dial.Display.setTextFont(&fonts::lgfxJapanGothic_36);
     M5Dial.Display.setTextSize(1);
@@ -211,7 +215,16 @@ void loop_setting() {
 // タグ登録画面のループ関数
 void loop_addTag() {
     newPosition = M5Dial.Encoder.read();
-    M5Dial.Display.fillScreen(0x42AE);
+
+    // ダイヤルがひねられたときの処理
+    if (newPosition != oldPosition) {
+        M5Dial.Speaker.tone(8000, 20);
+        categoryIndex = changeImageIndex(categoryIndex, categoryLength,
+                                         newPosition - oldPosition);
+        M5Dial.Display.fillScreen(0x42AE);
+        showList(categoryIndex);
+        oldPosition = newPosition;
+    }
 }
 
 // 設定画面の画像を切り替える関数
@@ -228,6 +241,21 @@ void changeOnOffImage(int index) {
         } else {
             M5.Lcd.drawJpgFile(SPIFFS, offOffImage[index], 0, 0);
         }
+    }
+}
+
+// リストを表示する関数
+void showList(int index) {
+    for (int i = 0; i < categoryLength; i++) {
+        int x = M5Dial.Display.width() / 2;
+        int y = ((M5Dial.Display.height() / 2) + HEIGHT_INTERVAL * i) -
+                index * HEIGHT_INTERVAL;
+        if (i == index) {
+            M5Dial.Display.setTextColor(RED);
+        } else {
+            M5Dial.Display.setTextColor(GREEN);
+        }
+        M5Dial.Display.drawString(category[i], x, y);
     }
 }
 
