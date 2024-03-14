@@ -57,7 +57,7 @@ enum Loops
 Loops currentLoops = MENU;
 
 // 各画面のループ関数
-void loop_menu();
+void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex);
 void loop_setting();
 void loop_addTag();
 void loop_tagList();
@@ -79,9 +79,13 @@ void loop() {
     // 状態によりループ関数を切り替える
     switch (currentLoops) {
         case MENU:
-            existTagImageIndex = 0;
-            notExistTagImageIndex = 0;
-            loop_menu();
+            if (isExistTag) {
+                loop_menu(existTagImage, existTagImageLength,
+                          existTagImageIndex);
+            } else {
+                loop_menu(notExistTagImage, notExistTagImageLength,
+                          notExistTagImageIndex);
+            }
             break;
         case SETTING:
             loop_setting();
@@ -116,21 +120,23 @@ void loop() {
 }
 
 // メニュー画面のループ関数
-void loop_menu() {
+void loop_menu(String tagImage[], int tagImageLength, int tagImageIndex) {
     newPosition = M5Dial.Encoder.read();
 
     // ダイヤルがひねられたときの処理
     if (newPosition != oldPosition) {
         M5Dial.Speaker.tone(8000, 20);
-        changeImageIndex(existTagImageIndex, existTagImageLength,
-                         newPosition - oldPosition);
+        tagImageIndex = changeImageIndex(tagImageIndex, tagImageLength,
+                                         newPosition - oldPosition);
         oldPosition = newPosition;
-        M5.Lcd.drawJpgFile(SPIFFS, existTagImage[existTagImageIndex], 0, 0);
+        M5.Lcd.drawJpgFile(SPIFFS, tagImage[tagImageIndex], 0, 0);
+        existTagImageIndex = tagImageIndex;
+        notExistTagImageIndex = tagImageIndex;
     }
 
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
-        switch (existTagImageIndex) {
+        switch (tagImageIndex) {
             case 0:
                 currentLoops = TAGLIST;
                 break;
