@@ -27,7 +27,8 @@ RFIDTagJson tagJson;
 RFIDUart rfidUart;
 
 // 登録するもののカテゴリ
-const String category[] = {"サイフ", "カギ", "スマホ", "パソコン", "ノート"};
+const String category[] = {"サイフ", "カギ",         "スマホ", "パソコン",
+                           "ノート", "カードケース", "その他"};
 
 // ダイヤルポジション変数
 long oldPosition = -999;
@@ -200,6 +201,11 @@ void loop_setting() {
                 break;
         }
     }
+}
+
+// タグ登録画面のループ関数
+void loop_addTag() {
+    newPosition = M5Dial.Encoder.read();
 }
 
 // 設定画面の画像を切り替える関数
