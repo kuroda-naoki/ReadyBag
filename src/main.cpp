@@ -23,7 +23,9 @@
 #include "RFIDUart.hpp"
 #include "pathImageFile.h"
 
-#define HEIGHT_INTERVAL 40
+#define HEIGHT_INTERVAL        40
+#define READING_INTERVAL       10
+#define READING_CLEAR_INTERVAL 100
 
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
@@ -37,6 +39,10 @@ int categoryLength = sizeof(category) / sizeof(category[0]);
 int categoryIndex = 0;
 
 int tagListIndex = 0;
+
+// 忘れ物検知の変数
+int jsonElementCount = 0;   // JSONファイルの要素数
+int jsonElementExists = 0;  // かばん内に存在しているかどうか
 
 // ダイヤルポジション変数
 long oldPosition = -999;
@@ -95,17 +101,51 @@ void showList(int index);
 void showTagList(String tagList[], int tagListLength, int index);
 int changeImageIndex(int index, int length, int direction);
 
+int bitElementExists(int bit, int index) {
+    return bit | (1 << index);
+}
+
 // 物がかばん内に存在するかどうか
 void tagExistTask(void *parameter) {
     while (true) {
-        delay(100);
+        static int count = 0;
+        count++;
+        // 取得したタグIDを元に、タグIDが登録されているか確認
+        // 登録していた場合
+        String tagId = rfidUart.getExistTagId();
+        if (tagJson.isTagIdExists(tagId.c_str())) {
+            int tagListLength = tagJson.getJsonElementCount();
+            for (int i = 0; i < tagListLength; i++) {
+                if (tagId == tagJson.getTagIdAtIndex(i)) {
+                    jsonElementExists = bitElementExists(jsonElementExists, i);
+                    break;
+                }
+            }
+            if (jsonElementExists == (1 << jsonElementCount) - 1) {
+                count = 0;
+                jsonElementCount = tagJson.getJsonElementCount();
+                isExistTag = true;
+                rfidUart.clearExistTagId();
+            }
+        }
+        // 一定間隔でタグIDをクリア
+        if (count >= READING_CLEAR_INTERVAL) {
+            count = 0;
+            jsonElementCount = tagJson.getJsonElementCount();
+            isExistTag = false;
+            rfidUart.clearExistTagId();
+        }
+        delay(READING_INTERVAL);
     }
 }
 
 // かばん内存在確認タスクの開始関数
 void startTagExistTask() {
     if (tagExistTaskHandle == NULL) {
+        jsonElementCount = tagJson.getJsonElementCount();
+        jsonElementExists = 0;
         rfidUart.clearExistTagId();
+        delay(100);
         rfidUart.startRFIDReader();
         xTaskCreate(tagExistTask, "tagExistTask", 2048, NULL, 1,
                     &tagExistTaskHandle);
