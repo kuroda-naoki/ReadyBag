@@ -24,7 +24,7 @@
 #include "pathImageFile.h"
 
 #define HEIGHT_INTERVAL        40
-#define READING_INTERVAL       10
+#define READING_INTERVAL       30
 #define READING_CLEAR_INTERVAL 100
 
 RFIDTagJson tagJson;
@@ -105,7 +105,7 @@ int bitElementExists(int bit, int index) {
     return bit | (1 << index);
 }
 
-// 物がかばん内に存在するかどうか
+// 物がかばん内に存在するかどうかを確認するタスク
 void tagExistTask(void *parameter) {
     while (true) {
         static int count = 0;
@@ -125,6 +125,10 @@ void tagExistTask(void *parameter) {
                 count = 0;
                 jsonElementCount = tagJson.getJsonElementCount();
                 isExistTag = true;
+                if (currentLoops == MENU) {
+                    M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0,
+                                       0);
+                }
                 // rfidUart.clearExistTagId();
             }
         }
@@ -133,6 +137,10 @@ void tagExistTask(void *parameter) {
             count = 0;
             jsonElementCount = tagJson.getJsonElementCount();
             isExistTag = false;
+            if (currentLoops == MENU) {
+                M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0,
+                                   0);
+            }
             // rfidUart.clearExistTagId();
         }
         delay(READING_INTERVAL);
