@@ -28,7 +28,7 @@
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
 
-TaskHandle_t tagExistTaskHandle;  // かばん内監視タスクハンドル
+TaskHandle_t tagExistTaskHandle = NULL;  // かばん内監視タスクハンドル
 
 // 登録するもののカテゴリ
 String category[] = {"サイフ", "カギ",         "スマホ", "パソコン",
@@ -102,6 +102,14 @@ void tagExistTask(void *parameter) {
     }
 }
 
+// かばん内存在確認タスクの停止関数
+void stopTagExistTask() {
+    if (tagExistTaskHandle != NULL) {
+        vTaskDelete(tagExistTaskHandle);
+        tagExistTaskHandle = NULL;
+    }
+}
+
 void setup() {
     M5_BEGIN();
     auto cfg = M5.config();
@@ -119,8 +127,11 @@ void setup() {
 
     M5_UPDATE();
 
-    xTaskCreateUniversal(tagExistTask, "tagExistTask", 3000, NULL, 1,
-                         &tagExistTaskHandle, 1);
+    if (tagExistTaskHandle == NULL) {
+        xTaskCreate(tagExistTask, "tagExistTask", 2048, NULL, 1,
+                    &tagExistTaskHandle);
+    }
+    delay(100);
 }
 
 void loop() {
