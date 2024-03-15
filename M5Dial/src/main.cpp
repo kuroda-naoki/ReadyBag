@@ -19,9 +19,12 @@
 #include <Adafruit_NeoPixel.h>
 #include <M5Dial.h>
 #include <M5Unified.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
 
 #include "RFIDTagJson.hpp"
 #include "RFIDUart.hpp"
+#include "config.h"
 #include "pathImageFile.h"
 
 #define LED_PIN    13  // INが接続されているピンを指定
@@ -219,6 +222,40 @@ void stopTagExistTask() {
     }
 }
 
+// line通知
+void send_line() {
+    // HTTPSへアクセス（SSL通信）するためのライブラリ
+    WiFiClientSecure client;
+
+    // サーバー証明書の検証を行わずに接続する場合に必要
+    client.setInsecure();
+
+    // LineのAPIサーバにSSL接続（ポート443:https）
+    if (!client.connect(host, 443)) {
+        return;
+    }
+
+    // リクエスト送信
+    String query = String("message=") + String("Forget something?");
+    String request = String("") + "POST /api/notify HTTP/1.1\r\n" +
+                     "Host: " + host + "\r\n" + "Authorization: Bearer " +
+                     token + "\r\n" +
+                     "Content-Length: " + String(query.length()) + "\r\n" +
+                     "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
+                     query + "\r\n";
+    client.print(request);
+
+    // 受信完了まで待機
+    while (client.connected()) {
+        String line = client.readStringUntil('\n');
+        if (line == "\r") {
+            break;
+        }
+    }
+
+    String line = client.readStringUntil('\n');
+}
+
 void setup() {
     M5_BEGIN();
     auto cfg = M5.config();
@@ -226,6 +263,14 @@ void setup() {
 
     rfidUart.init();
     tagJson.init();
+
+    // WiFi接続
+    WiFi.begin(ssid, pass);
+
+    // WiFiの接続状態を確認
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(250);
+    }
 
     M5Dial.Display.setTextColor(WHITE);
     M5Dial.Display.setTextDatum(middle_center);
@@ -309,6 +354,7 @@ void loop_menu() {
         if (isExistTag) {
             M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
         } else {
+            send_line();
             M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
         }
         isExistTagOld = isExistTag;
