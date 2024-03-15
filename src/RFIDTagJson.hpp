@@ -108,13 +108,13 @@ String RFIDTagJson::getNameFromTagId(const char* tagID) {
 bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
     // Jsonファイルが存在しない場合は何もしない
     if (!SPIFFS.exists(JSON_FILE)) {
-        return false;
+        // return false;
     }
 
     File file = SPIFFS.open(JSON_FILE, FILE_READ);
     // ファイル読み取り失敗時
     if (!file) {
-        return false;
+        // return false;
     }
 
     StaticJsonDocument<1024> doc;  // JSONドキュメントを作成します。
@@ -122,7 +122,7 @@ bool RFIDTagJson::addTagFromJson(const char* name, const char* tagID) {
     // ファイル変換失敗時
     if (error) {
         file.close();
-        return false;
+        // return false;
     }
     file.close();  // ファイル読み込み完了後は閉じる
 
