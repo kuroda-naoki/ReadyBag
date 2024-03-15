@@ -102,9 +102,20 @@ void tagExistTask(void *parameter) {
     }
 }
 
+// かばん内存在確認タスクの開始関数
+void startTagExistTask() {
+    if (tagExistTaskHandle == NULL) {
+        rfidUart.clearExistTagId();
+        rfidUart.startRFIDReader();
+        xTaskCreate(tagExistTask, "tagExistTask", 2048, NULL, 1,
+                    &tagExistTaskHandle);
+    }
+}
+
 // かばん内存在確認タスクの停止関数
 void stopTagExistTask() {
     if (tagExistTaskHandle != NULL) {
+        rfidUart.endRFIDReader();
         vTaskDelete(tagExistTaskHandle);
         tagExistTaskHandle = NULL;
     }
@@ -127,10 +138,7 @@ void setup() {
 
     M5_UPDATE();
 
-    if (tagExistTaskHandle == NULL) {
-        xTaskCreate(tagExistTask, "tagExistTask", 2048, NULL, 1,
-                    &tagExistTaskHandle);
-    }
+    startTagExistTask();
     delay(100);
 }
 
