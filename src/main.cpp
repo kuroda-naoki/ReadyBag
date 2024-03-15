@@ -306,10 +306,12 @@ void loop_addTag() {
                     }
                     // タグIDの登録に失敗した場合
                     else {
+                        M5Dial.Display.setTextSize(0.6);
                         M5Dial.Display.fillScreen(0x4208);
                         M5Dial.Display.drawString("登録に失敗しました.",
                                                   M5Dial.Display.width() / 2,
                                                   M5Dial.Display.height() / 2);
+                        M5Dial.Display.setTextSize(1);
                         delay(2000);
                         break;
                     }
