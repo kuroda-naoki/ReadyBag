@@ -95,6 +95,9 @@ void setup() {
     auto cfg = M5.config();
     M5Dial.begin(cfg, true, false);
 
+    rfidUart.init();
+    tagJson.init();
+
     M5Dial.Display.setTextColor(WHITE);
     M5Dial.Display.setTextDatum(middle_center);
     M5Dial.Display.setTextFont(&fonts::lgfxJapanGothic_36);
@@ -236,27 +239,51 @@ void loop_addTag() {
     if (M5Dial.BtnA.wasPressed()) {
         int count = 0;
         M5Dial.Display.setTextColor(60388);
+
+        // RFIDリーダーのタグ情報をクリア
+        rfidUart.clearExistTagId();
+
+        delay(100);
+
+        // RFIDリーダーの再起動
+        rfidUart.endRFIDReader();
+        delay(100);
+        rfidUart.startRFIDReader();
+
         while (true) {
             count++;
             M5Dial.Display.fillScreen(0x4208);
             if (count % 3 == 0) {
-                M5Dial.Display.drawString("タグをかざしてください.",
-                                          M5Dial.Display.width() / 2,
+                M5Dial.Display.drawString("捜索中.", M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
             } else if (count % 3 == 1) {
-                M5Dial.Display.drawString("タグをかざしてください..",
+                M5Dial.Display.drawString("捜索中..",
                                           M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
             } else if (count % 3 == 2) {
-                M5Dial.Display.drawString("タグをかざしてください...",
+                M5Dial.Display.drawString("捜索中...",
                                           M5Dial.Display.width() / 2,
                                           M5Dial.Display.height() / 2);
+            }
+            if (count >= 10) {
+                M5Dial.Display.fillScreen(0x4208);
+                M5Dial.Display.setTextSize(0.6);
+                M5Dial.Display.drawString("時間内にタグが",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2 - 14);
+                M5Dial.Display.drawString("見つかりませんでした",
+                                          M5Dial.Display.width() / 2,
+                                          M5Dial.Display.height() / 2 + 14);
+                M5Dial.Display.setTextSize(1);
+                delay(2000);
+                break;
             }
             String tagId = rfidUart.getExistTagId();
             // タグIDが取得できた場合
             if (tagId != "") {
                 // すでに登録されているタグIDの場合
                 if (tagJson.isTagIdExists(tagId.c_str())) {
+                    M5Dial.Display.setTextSize(0.6);
                     M5Dial.Display.fillScreen(0x4208);
                     M5Dial.Display.drawString("そのタグは",
                                               M5Dial.Display.width() / 2,
@@ -265,14 +292,16 @@ void loop_addTag() {
                                               M5Dial.Display.width() / 2,
                                               M5Dial.Display.height() / 2) +
                         20;
+                    M5Dial.Display.setTextSize(1);
                     delay(2000);
-                    continue;
+                    break;
                 }
                 // 未登録タグIDの場合
                 else {
                     // タグIDを登録
                     if (tagJson.addTagFromJson(category[categoryIndex].c_str(),
                                                tagId.c_str())) {
+                        M5Dial.Display.setTextSize(0.6);
                         M5Dial.Display.fillScreen(0x4208);
                         M5Dial.Display.drawString(
                             category[categoryIndex], M5Dial.Display.width() / 2,
@@ -281,19 +310,24 @@ void loop_addTag() {
                                                   M5Dial.Display.width() / 2,
                                                   M5Dial.Display.height() / 2) +
                             20;
+                        M5Dial.Display.setTextSize(1);
                         delay(2000);
                         break;
                     }
                     // タグIDの登録に失敗した場合
                     else {
+                        M5Dial.Display.setTextSize(0.6);
                         M5Dial.Display.fillScreen(0x4208);
                         M5Dial.Display.drawString("登録に失敗しました.",
                                                   M5Dial.Display.width() / 2,
                                                   M5Dial.Display.height() / 2);
+                        M5Dial.Display.setTextSize(1);
                         delay(2000);
                         break;
                     }
                 }
+                delay(1000);
+                rfidUart.refreshRFIDReader();
             }
             delay(500);
         }
