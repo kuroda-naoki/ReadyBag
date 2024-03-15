@@ -16,12 +16,18 @@
 
 #include "main.hpp"
 
+#include <Adafruit_NeoPixel.h>
 #include <M5Dial.h>
 #include <M5Unified.h>
 
 #include "RFIDTagJson.hpp"
 #include "RFIDUart.hpp"
 #include "pathImageFile.h"
+
+#define LED_PIN    13  // INが接続されているピンを指定
+#define NUM_PIXELS 15  // LEDの数を指定
+Adafruit_NeoPixel pixels(NUM_PIXELS, LED_PIN,
+                         NEO_GRB + NEO_KHZ800);  // 800kHzでNeoPixelを駆動
 
 #define HEIGHT_INTERVAL        40
 #define READING_INTERVAL       30
@@ -30,6 +36,7 @@
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
 
+TaskHandle_t ledTaskHandle = NULL;       // LED点灯タスクハンドル
 TaskHandle_t tagExistTaskHandle = NULL;  // かばん内監視タスクハンドル
 
 // 登録するもののカテゴリ
@@ -101,8 +108,52 @@ void showList(int index);
 void showTagList(String tagList[], int tagListLength, int index);
 int changeImageIndex(int index, int length, int direction);
 
-int bitElementExists(int bit, int index) {
-    return bit | (1 << index);
+// 忘れ物時にLEDを点灯させるタスク
+void ledTask(void *parameter) {
+    while (true) {
+        if (isLedOn) {
+            pixels.clear();
+            if (!isExistTag) {
+                for (int j = 0; j < NUM_PIXELS; j++) {
+                    if (isExistTag) {
+                        break;
+                    }
+                    pixels.setPixelColor(
+                        j, pixels.Color(255, 0, 0));  // LEDの色を設定
+                    pixels.show();                    // LEDに色を反映
+                    delay(50 - j);                    // 500ms待機
+                }
+            } else {
+                pixels.show();
+            }
+            for (int i = 0; i < 100; i++) {
+                if (isExistTag) {
+                    break;
+                }
+                delay(10);
+            }
+        } else {
+            pixels.clear();
+            pixels.show();
+            delay(1000);
+        }
+    }
+}
+
+// 忘れ物時点灯タスクの開始関数
+void startLedTask() {
+    if (tagExistTaskHandle == NULL) {
+        pixels.begin();
+        xTaskCreate(ledTask, "ledTask", 5000, NULL, 1, &ledTaskHandle);
+    }
+}
+
+// 忘れ物時点灯タスクの停止関数
+void stopLedTask() {
+    if (ledTaskHandle != NULL) {
+        vTaskDelete(ledTaskHandle);
+        ledTaskHandle = NULL;
+    }
 }
 
 // 物がかばん内に存在するかどうかを確認するタスク
@@ -129,6 +180,8 @@ void tagExistTask(void *parameter) {
                 jsonElementCount = tagJson.getJsonElementCount();
                 jsonElementExists = 0;
                 isExistTag = true;
+                if (isLedOn)
+                    startLedTask();
                 // rfidUart.clearExistTagId();
             }
         }
@@ -183,6 +236,8 @@ void setup() {
 
     M5_UPDATE();
 
+    startLedTask();
+    delay(100);
     startTagExistTask();
     delay(100);
 }
