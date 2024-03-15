@@ -95,6 +95,8 @@ void setup() {
     auto cfg = M5.config();
     M5Dial.begin(cfg, true, false);
 
+    rfidUart.init();
+
     M5Dial.Display.setTextColor(WHITE);
     M5Dial.Display.setTextDatum(middle_center);
     M5Dial.Display.setTextFont(&fonts::lgfxJapanGothic_36);
