@@ -34,6 +34,8 @@ String category[] = {"サイフ", "カギ",         "スマホ", "パソコン",
 int categoryLength = sizeof(category) / sizeof(category[0]);
 int categoryIndex = 0;
 
+int tagListIndex = 0;
+
 // ダイヤルポジション変数
 long oldPosition = -999;
 long newPosition = 0;
@@ -88,6 +90,7 @@ void loop_tagList();
 // 各関数
 void changeOnOffImage(int index);
 void showList(int index);
+void showTagList(String tagList[], int tagListLength, int index);
 int changeImageIndex(int index, int length, int direction);
 
 void setup() {
@@ -146,6 +149,16 @@ void loop() {
             loop_addTag();
             break;
         case TAGLIST:
+            if (currentLoops != oldLoops) {
+                M5Dial.Display.fillScreen(0x4208);
+                int tagListLength = tagJson.getJsonElementCount();
+                String tagList[tagListLength];
+                for (int i = 0; i < tagListLength; i++) {
+                    tagList[i] = tagJson.getNameAtIndex(i);
+                }
+                showTagList(tagList, tagListLength, tagListIndex);
+                oldLoops = currentLoops;
+            }
             loop_tagList();
             break;
     }
@@ -362,13 +375,17 @@ void loop_tagList() {
         categoryIndex = changeImageIndex(categoryIndex, categoryLength,
                                          newPosition - oldPosition);
         M5Dial.Display.fillScreen(0x4208);
-        showList(categoryIndex);
+        int tagListLength = tagJson.getJsonElementCount();
+        String tagList[tagListLength];
+        for (int i = 0; i < tagListLength; i++) {
+            tagList[i] = tagJson.getNameAtIndex(i);
+        }
+        showTagList(tagList, tagListLength, tagListIndex);
         oldPosition = newPosition;
     }
 
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
-        oldPosition = -999;
         currentLoops = MENU;
     }
 }
@@ -385,6 +402,23 @@ void showList(int index) {
             M5Dial.Display.setTextColor(WHITE);
         }
         M5Dial.Display.drawString(category[i], x, y);
+    }
+}
+
+// タグリストを表示する関数
+void showTagList(String tagList[], int tagListLength, int index) {
+    for (int i = 0; i < tagListLength; i++) {
+        int x = M5Dial.Display.width() / 2;
+        int y = ((M5Dial.Display.height() / 2) + HEIGHT_INTERVAL * i) -
+                index * HEIGHT_INTERVAL;
+        if (i == index) {
+            M5Dial.Display.setTextColor(BLACK);
+        } else {
+            M5Dial.Display.setTextColor(WHITE);
+        }
+        M5Dial.Display.drawString(tagList[i], x, y);
+        // M5Dial.Display.drawString("a", x, y); //
+        // デバッグ用の行は必要に応じてコメントアウト
     }
 }
 
