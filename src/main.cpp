@@ -96,6 +96,7 @@ void setup() {
     M5Dial.begin(cfg, true, false);
 
     rfidUart.init();
+    tagJson.init();
 
     M5Dial.Display.setTextColor(WHITE);
     M5Dial.Display.setTextDatum(middle_center);
