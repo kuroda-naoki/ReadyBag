@@ -236,6 +236,12 @@ void loop_addTag() {
     if (M5Dial.BtnA.wasPressed()) {
         int count = 0;
         M5Dial.Display.setTextColor(60388);
+
+        // RFIDリーダーの再起動
+        rfidUart.endRFIDReader();
+        delay(100);
+        rfidUart.startRFIDReader();
+
         while (true) {
             count++;
             M5Dial.Display.fillScreen(0x4208);
