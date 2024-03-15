@@ -147,7 +147,7 @@ void startTagExistTask() {
         rfidUart.clearExistTagId();
         delay(100);
         rfidUart.startRFIDReader();
-        xTaskCreate(tagExistTask, "tagExistTask", 2048, NULL, 1,
+        xTaskCreate(tagExistTask, "tagExistTask", 5000, NULL, 1,
                     &tagExistTaskHandle);
     }
 }
@@ -178,7 +178,7 @@ void setup() {
 
     M5_UPDATE();
 
-    startTagExistTask();
+    // startTagExistTask();
     delay(100);
 }
 
