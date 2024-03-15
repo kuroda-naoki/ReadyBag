@@ -317,6 +317,8 @@ void loop_addTag() {
                         break;
                     }
                 }
+                delay(1000);
+                rfidUart.refreshRFIDReader();
             }
             delay(500);
         }

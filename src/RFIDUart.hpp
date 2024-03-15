@@ -18,6 +18,7 @@ public:
     void init();
     void startRFIDReader();
     String getExistTagId();
+    void refreshRFIDReader();
     void endRFIDReader();
     void clearExistTagId();
 };
@@ -54,6 +55,15 @@ String RFIDUart::getExistTagId() {
         }
     }
     return tagId;
+}
+
+// RFIDリーダーのリフレッシュ
+void RFIDUart::refreshRFIDReader() {
+    // RFIDリーダーのリフレッシュコマンドを送信
+    while (Serial2.available()) {
+        Serial2.read();
+        delay(1);
+    }
 }
 
 // RFIDリーダーの終了
