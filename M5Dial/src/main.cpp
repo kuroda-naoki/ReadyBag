@@ -24,7 +24,7 @@
 #include "pathImageFile.h"
 
 #define HEIGHT_INTERVAL        40
-#define READING_INTERVAL       10
+#define READING_INTERVAL       30
 #define READING_CLEAR_INTERVAL 100
 
 RFIDTagJson tagJson;
@@ -105,7 +105,7 @@ int bitElementExists(int bit, int index) {
     return bit | (1 << index);
 }
 
-// 物がかばん内に存在するかどうか
+// 物がかばん内に存在するかどうかを確認するタスク
 void tagExistTask(void *parameter) {
     while (true) {
         static int count = 0;
@@ -114,16 +114,20 @@ void tagExistTask(void *parameter) {
         // 登録していた場合
         String tagId = rfidUart.getExistTagId();
         if (tagJson.isTagIdExists(tagId.c_str())) {
-            int tagListLength = tagJson.getJsonElementCount();
-            for (int i = 0; i < tagListLength; i++) {
+            jsonElementCount = tagJson.getJsonElementCount();
+            for (int i = 0; i < jsonElementCount; i++) {
                 if (tagId == tagJson.getTagIdAtIndex(i)) {
-                    jsonElementExists = bitElementExists(jsonElementExists, i);
+                    if ((jsonElementExists & (1 << i)) == 0) {
+                        jsonElementExists += 1 << i;
+                    }
                     break;
                 }
             }
+
             if (jsonElementExists == (1 << jsonElementCount) - 1) {
                 count = 0;
                 jsonElementCount = tagJson.getJsonElementCount();
+                jsonElementExists = 0;
                 isExistTag = true;
                 // rfidUart.clearExistTagId();
             }
@@ -132,6 +136,7 @@ void tagExistTask(void *parameter) {
         if (count >= READING_CLEAR_INTERVAL) {
             count = 0;
             jsonElementCount = tagJson.getJsonElementCount();
+            jsonElementExists = 0;
             isExistTag = false;
             // rfidUart.clearExistTagId();
         }
@@ -240,7 +245,19 @@ void loop() {
 
 // メニュー画面のループ関数
 void loop_menu() {
+    static bool isExistTagOld = isExistTag;
     newPosition = M5Dial.Encoder.read();
+
+    // 忘れ物状態が変化したときの処理
+    if (isExistTagOld != isExistTag) {
+        M5Dial.Speaker.tone(8000, 20);
+        if (isExistTag) {
+            M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
+        } else {
+            M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
+        }
+        isExistTagOld = isExistTag;
+    }
 
     // ダイヤルがひねられたときの処理
     if (newPosition != oldPosition) {
