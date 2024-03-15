@@ -112,13 +112,25 @@ int changeImageIndex(int index, int length, int direction);
 void ledTask(void *parameter) {
     while (true) {
         pixels.clear();
-        for (int j = 0; j < NUM_PIXELS; j++) {
-            Serial.println("3");
-            pixels.setPixelColor(j, pixels.Color(255, 0, 0));  // LEDの色を設定
-            pixels.show();  // LEDに色を反映
-            delay(50 - j);  // 500ms待機
+        if (!isExistTag) {
+            for (int j = 0; j < NUM_PIXELS; j++) {
+                if (isExistTag) {
+                    break;
+                }
+                pixels.setPixelColor(j,
+                                     pixels.Color(255, 0, 0));  // LEDの色を設定
+                pixels.show();  // LEDに色を反映
+                delay(50 - j);  // 500ms待機
+            }
+        } else {
+            pixels.show();
         }
-        delay(1000);
+        for (int i = 0; i < 100; i++) {
+            if (isExistTag) {
+                break;
+            }
+            delay(10);
+        }
     }
 }
 
