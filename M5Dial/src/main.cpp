@@ -103,7 +103,7 @@ void loop_addTag();
 void loop_tagList();
 
 // 各関数
-void changeOnOffImage(int index);
+void changeOnOffImage();
 void showList(int index);
 void showTagList(String tagList[], int tagListLength, int index);
 int changeImageIndex(int index, int length, int direction);
@@ -265,7 +265,7 @@ void loop() {
         case SETTING:
             if (currentLoops != oldLoops) {
                 oldPosition = newPosition;
-                changeOnOffImage(settingImageIndex);
+                changeOnOffImage();
                 oldLoops = currentLoops;
             }
             loop_setting();
@@ -356,7 +356,7 @@ void loop_setting() {
             settingImageIndex, settingImageLength, newPosition - oldPosition);
         oldPosition = newPosition;
         // 選択肢とブザー、LEDのON/OFFもとに画像の切り替え
-        changeOnOffImage(settingImageIndex);
+        changeOnOffImage();
     }
 
     // ボタンが押されたときの処理
@@ -367,11 +367,11 @@ void loop_setting() {
                 break;
             case 1:
                 isBuzzerOn = !isBuzzerOn;
-                changeOnOffImage(settingImageIndex);
+                changeOnOffImage();
                 break;
             case 2:
                 isLedOn = !isLedOn;
-                changeOnOffImage(settingImageIndex);
+                changeOnOffImage();
                 break;
         }
     }
@@ -492,18 +492,18 @@ void loop_addTag() {
 }
 
 // 設定画面の画像を切り替える関数
-void changeOnOffImage(int index) {
+void changeOnOffImage() {
     if (isLedOn) {
         if (isBuzzerOn) {
-            M5.Lcd.drawJpgFile(SPIFFS, onOnImage[index], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, onOnImage[settingImageIndex], 0, 0);
         } else {
-            M5.Lcd.drawJpgFile(SPIFFS, onOffImage[index], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, onOffImage[settingImageIndex], 0, 0);
         }
     } else {
         if (isBuzzerOn) {
-            M5.Lcd.drawJpgFile(SPIFFS, offOnImage[index], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, offOnImage[settingImageIndex], 0, 0);
         } else {
-            M5.Lcd.drawJpgFile(SPIFFS, offOffImage[index], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, offOffImage[settingImageIndex], 0, 0);
         }
     }
 }
