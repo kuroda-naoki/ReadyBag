@@ -178,7 +178,7 @@ void setup() {
 
     M5_UPDATE();
 
-    // startTagExistTask();
+    startTagExistTask();
     delay(100);
 }
 
