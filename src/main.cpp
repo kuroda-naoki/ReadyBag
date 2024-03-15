@@ -372,10 +372,10 @@ void loop_tagList() {
     // ダイヤルがひねられたときの処理
     if (newPosition != oldPosition) {
         M5Dial.Speaker.tone(8000, 20);
-        categoryIndex = changeImageIndex(categoryIndex, categoryLength,
-                                         newPosition - oldPosition);
-        M5Dial.Display.fillScreen(0x4208);
         int tagListLength = tagJson.getJsonElementCount();
+        tagListIndex = changeImageIndex(tagListIndex, tagListLength,
+                                        newPosition - oldPosition);
+        M5Dial.Display.fillScreen(0x4208);
         String tagList[tagListLength];
         for (int i = 0; i < tagListLength; i++) {
             tagList[i] = tagJson.getNameAtIndex(i);
