@@ -17,6 +17,8 @@ public:
     bool deleteTagFromJson(const char* tagID);
     int getJsonElementCount();
     String getNameAtIndex(int index);
+    String getTagIdAtIndex(int index);
+    String getTagIdFromName(const char* name);
 };
 
 // ----------------------------------------------------------------------------------------------------------------------------------
@@ -263,6 +265,37 @@ String RFIDTagJson::getNameAtIndex(int index) {
         if (currentIndex == index) {
             return String(
                 kv.key().c_str());  // Return the name at the specified index
+        }
+        currentIndex++;
+    }
+
+    return "";  // Return an empty string if the index is out of range
+}
+
+// JSONファイル内の指定されたインデックスのタグIDを取得する関数
+String RFIDTagJson::getTagIdAtIndex(int index) {
+    if (!SPIFFS.exists(JSON_FILE)) {
+        return "";
+    }
+
+    File file = SPIFFS.open(JSON_FILE, FILE_READ);
+    if (!file) {
+        return "";
+    }
+
+    StaticJsonDocument<1024> doc;  // Adjust size according to your needs
+    DeserializationError error = deserializeJson(doc, file);
+    if (error) {
+        file.close();
+        return "";
+    }
+    file.close();
+
+    int currentIndex = 0;
+    for (JsonPair kv : doc.as<JsonObject>()) {
+        if (currentIndex == index) {
+            return String(kv.value().as<const char*>());  // Return the tagID at
+                                                          // the specified index
         }
         currentIndex++;
     }
