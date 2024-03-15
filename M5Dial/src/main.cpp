@@ -51,8 +51,9 @@ int categoryIndex = 0;
 int tagListIndex = 0;
 
 // 忘れ物検知の変数
-int jsonElementCount = 0;   // JSONファイルの要素数
-int jsonElementExists = 0;  // かばん内に存在しているかどうか
+int jsonElementCount = 0;      // JSONファイルの要素数
+int jsonElementExists = 0;     // かばん内に存在しているかどうか
+int jsonNotElementExists = 0;  // かばん内に存在していないかどうか
 
 // ダイヤルポジション変数
 long oldPosition = -999;
@@ -190,6 +191,8 @@ void tagExistTask(void *parameter) {
         }
         // 一定間隔でタグIDをクリア
         if (count >= READING_CLEAR_INTERVAL) {
+            jsonNotElementExists =
+                jsonElementExists ^ ((1 << jsonElementCount) - 1);
             count = 0;
             jsonElementCount = tagJson.getJsonElementCount();
             jsonElementExists = 0;
@@ -606,8 +609,6 @@ void showTagList(String tagList[], int tagListLength, int index) {
             M5Dial.Display.setTextColor(WHITE);
         }
         M5Dial.Display.drawString(tagList[i], x, y);
-        // M5Dial.Display.drawString("a", x, y); //
-        // デバッグ用の行は必要に応じてコメントアウト
     }
 }
 
