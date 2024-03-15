@@ -30,6 +30,7 @@
 RFIDTagJson tagJson;
 RFIDUart rfidUart;
 
+TaskHandle_t ledTaskHandle = NULL;       // LED点灯タスクハンドル
 TaskHandle_t tagExistTaskHandle = NULL;  // かばん内監視タスクハンドル
 
 // 登録するもののカテゴリ
@@ -101,8 +102,25 @@ void showList(int index);
 void showTagList(String tagList[], int tagListLength, int index);
 int changeImageIndex(int index, int length, int direction);
 
-int bitElementExists(int bit, int index) {
-    return bit | (1 << index);
+// 忘れ物時にLEDを点灯させるタスク
+void ledTask(void *parameter) {
+    while (true) {
+        }
+}
+
+// 忘れ物時点灯タスクの開始関数
+void startLedTask() {
+    if (tagExistTaskHandle == NULL) {
+        xTaskCreate(ledTask, "ledTask", 5000, NULL, 1, &ledTaskHandle);
+    }
+}
+
+// 忘れ物時点灯タスクの停止関数
+void stopLedTask() {
+    if (ledTaskHandle != NULL) {
+        vTaskDelete(ledTaskHandle);
+        ledTaskHandle = NULL;
+    }
 }
 
 // 物がかばん内に存在するかどうかを確認するタスク
@@ -129,6 +147,8 @@ void tagExistTask(void *parameter) {
                 jsonElementCount = tagJson.getJsonElementCount();
                 jsonElementExists = 0;
                 isExistTag = true;
+                if (isLedOn)
+                    startLedTask();
                 // rfidUart.clearExistTagId();
             }
         }
