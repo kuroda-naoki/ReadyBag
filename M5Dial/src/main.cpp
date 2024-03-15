@@ -16,12 +16,18 @@
 
 #include "main.hpp"
 
+#include <Adafruit_NeoPixel.h>
 #include <M5Dial.h>
 #include <M5Unified.h>
 
 #include "RFIDTagJson.hpp"
 #include "RFIDUart.hpp"
 #include "pathImageFile.h"
+
+#define LED_PIN    13  // INが接続されているピンを指定
+#define NUM_PIXELS 15  // LEDの数を指定
+Adafruit_NeoPixel pixels(NUM_PIXELS, LED_PIN,
+                         NEO_GRB + NEO_KHZ800);  // 800kHzでNeoPixelを駆動
 
 #define HEIGHT_INTERVAL        40
 #define READING_INTERVAL       30
@@ -105,12 +111,21 @@ int changeImageIndex(int index, int length, int direction);
 // 忘れ物時にLEDを点灯させるタスク
 void ledTask(void *parameter) {
     while (true) {
+        pixels.clear();
+        for (int j = 0; j < NUM_PIXELS; j++) {
+            Serial.println("3");
+            pixels.setPixelColor(j, pixels.Color(255, 0, 0));  // LEDの色を設定
+            pixels.show();  // LEDに色を反映
+            delay(50 - j);  // 500ms待機
         }
+        delay(1000);
+    }
 }
 
 // 忘れ物時点灯タスクの開始関数
 void startLedTask() {
     if (tagExistTaskHandle == NULL) {
+        pixels.begin();
         xTaskCreate(ledTask, "ledTask", 5000, NULL, 1, &ledTaskHandle);
     }
 }
@@ -203,6 +218,8 @@ void setup() {
 
     M5_UPDATE();
 
+    startLedTask();
+    delay(100);
     startTagExistTask();
     delay(100);
 }
