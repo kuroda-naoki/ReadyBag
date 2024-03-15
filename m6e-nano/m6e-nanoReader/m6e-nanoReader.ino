@@ -44,6 +44,7 @@ void setup()
 
 void loop()
 {
+  // タグ読み取り処理
   if (nano.check() == true) //Check to see if any new data has come in from module
   {
     byte responseType = nano.parseResponse(); //Break response into tag ID, RSSI, frequency, and timestamp
@@ -79,12 +80,12 @@ void loop()
     }
     else if (responseType == ERROR_CORRUPT_RESPONSE)
     {
-      Serial.println("Bad CRC");
+      //Serial.println("Bad CRC");
     }
     else
     {
       //Unknown response
-      Serial.print("Unknown error");
+      //Serial.print("Unknown error");
     }
   }
 }
@@ -110,7 +111,7 @@ boolean setupNano(long baudRate)
     //This happens if the baud rate is correct but the module is doing a ccontinuous read
     nano.stopReading();
 
-    Serial.println(F("Module continuously reading. Asking it to stop..."));
+    //Serial.println(F("Module continuously reading. Asking it to stop..."));
 
     delay(1500);
   }
