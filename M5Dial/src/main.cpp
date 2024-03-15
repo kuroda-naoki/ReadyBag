@@ -125,7 +125,7 @@ void tagExistTask(void *parameter) {
                 count = 0;
                 jsonElementCount = tagJson.getJsonElementCount();
                 isExistTag = true;
-                rfidUart.clearExistTagId();
+                // rfidUart.clearExistTagId();
             }
         }
         // 一定間隔でタグIDをクリア
@@ -133,7 +133,7 @@ void tagExistTask(void *parameter) {
             count = 0;
             jsonElementCount = tagJson.getJsonElementCount();
             isExistTag = false;
-            rfidUart.clearExistTagId();
+            // rfidUart.clearExistTagId();
         }
         delay(READING_INTERVAL);
     }
@@ -144,9 +144,9 @@ void startTagExistTask() {
     if (tagExistTaskHandle == NULL) {
         jsonElementCount = tagJson.getJsonElementCount();
         jsonElementExists = 0;
-        rfidUart.clearExistTagId();
+        // rfidUart.clearExistTagId();
         delay(100);
-        rfidUart.startRFIDReader();
+        // rfidUart.startRFIDReader();
         xTaskCreate(tagExistTask, "tagExistTask", 5000, NULL, 1,
                     &tagExistTaskHandle);
     }
@@ -155,7 +155,7 @@ void startTagExistTask() {
 // かばん内存在確認タスクの停止関数
 void stopTagExistTask() {
     if (tagExistTaskHandle != NULL) {
-        rfidUart.endRFIDReader();
+        // rfidUart.endRFIDReader();
         vTaskDelete(tagExistTaskHandle);
         tagExistTaskHandle = NULL;
     }
@@ -178,7 +178,7 @@ void setup() {
 
     M5_UPDATE();
 
-    // startTagExistTask();
+    startTagExistTask();
     delay(100);
 }
 
@@ -325,14 +325,14 @@ void loop_addTag() {
         M5Dial.Display.setTextColor(60388);
 
         // RFIDリーダーのタグ情報をクリア
-        rfidUart.clearExistTagId();
+        // rfidUart.clearExistTagId();
 
         delay(100);
 
         // RFIDリーダーの再起動
-        rfidUart.endRFIDReader();
+        // rfidUart.endRFIDReader();
         delay(100);
-        rfidUart.startRFIDReader();
+        // rfidUart.startRFIDReader();
 
         while (true) {
             count++;
@@ -411,7 +411,7 @@ void loop_addTag() {
                     }
                 }
                 delay(1000);
-                rfidUart.refreshRFIDReader();
+                // rfidUart.refreshRFIDReader();
             }
             delay(500);
         }

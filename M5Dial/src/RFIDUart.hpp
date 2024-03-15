@@ -38,10 +38,10 @@ void RFIDUart::init() {
 }
 
 // RFIDリーダーの起動
-void RFIDUart::startRFIDReader() {
-    // RFIDリーダーの起動コマンドを送信
-    Serial2.println(RFID_READER_START_COMMAND);
-}
+// void RFIDUart::startRFIDReader() {
+//     // RFIDリーダーの起動コマンドを送信
+//     Serial2.println(RFID_READER_START_COMMAND);
+// }
 
 // RFIDリーダーから存在するタグIDの取得
 String RFIDUart::getExistTagId() {
@@ -58,21 +58,21 @@ String RFIDUart::getExistTagId() {
 }
 
 // RFIDリーダーのリフレッシュ
-void RFIDUart::refreshRFIDReader() {
-    // RFIDリーダーのリフレッシュコマンドを送信
-    while (Serial2.available()) {
-        Serial2.read();
-        delay(1);
-    }
-}
+// void RFIDUart::refreshRFIDReader() {
+//     // RFIDリーダーのリフレッシュコマンドを送信
+//     while (Serial2.available()) {
+//         Serial2.read();
+//         delay(1);
+//     }
+// }
 
 // RFIDリーダーの終了
-void RFIDUart::endRFIDReader() {
-    // RFIDリーダーの終了コマンドを送信
-    Serial2.println(RFID_READER_END_COMMAND);
-}
+// void RFIDUart::endRFIDReader() {
+//     // RFIDリーダーの終了コマンドを送信
+//     Serial2.println(RFID_READER_END_COMMAND);
+// }
 
 // RFIDリーダーが保有しているタグIDのクリア
-void RFIDUart::clearExistTagId() {
-    Serial2.println(RFID_READER_CLEAR_COMMAND);
-}
+// void RFIDUart::clearExistTagId() {
+//     Serial2.println(RFID_READER_CLEAR_COMMAND);
+// }
