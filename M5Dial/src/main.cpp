@@ -601,7 +601,7 @@ void showTagList(String tagList[], int tagListLength, int index) {
         int y = ((M5Dial.Display.height() / 2) + HEIGHT_INTERVAL * i) -
                 index * HEIGHT_INTERVAL;
         if (i == index) {
-            M5Dial.Display.setTextColor(BLACK);
+            M5Dial.Display.setTextColor(60388);
         } else {
             M5Dial.Display.setTextColor(WHITE);
         }
