@@ -240,6 +240,11 @@ void loop_addTag() {
         int count = 0;
         M5Dial.Display.setTextColor(60388);
 
+        // RFIDリーダーのタグ情報をクリア
+        rfidUart.clearExistTagId();
+
+        delay(100);
+
         // RFIDリーダーの再起動
         rfidUart.endRFIDReader();
         delay(100);
@@ -278,6 +283,7 @@ void loop_addTag() {
             if (tagId != "") {
                 // すでに登録されているタグIDの場合
                 if (tagJson.isTagIdExists(tagId.c_str())) {
+                    M5Dial.Display.setTextSize(0.6);
                     M5Dial.Display.fillScreen(0x4208);
                     M5Dial.Display.drawString("そのタグは",
                                               M5Dial.Display.width() / 2,
@@ -286,6 +292,7 @@ void loop_addTag() {
                                               M5Dial.Display.width() / 2,
                                               M5Dial.Display.height() / 2) +
                         20;
+                    M5Dial.Display.setTextSize(1);
                     delay(2000);
                     break;
                 }
@@ -294,6 +301,7 @@ void loop_addTag() {
                     // タグIDを登録
                     if (tagJson.addTagFromJson(category[categoryIndex].c_str(),
                                                tagId.c_str())) {
+                        M5Dial.Display.setTextSize(0.6);
                         M5Dial.Display.fillScreen(0x4208);
                         M5Dial.Display.drawString(
                             category[categoryIndex], M5Dial.Display.width() / 2,
@@ -302,6 +310,7 @@ void loop_addTag() {
                                                   M5Dial.Display.width() / 2,
                                                   M5Dial.Display.height() / 2) +
                             20;
+                        M5Dial.Display.setTextSize(1);
                         delay(2000);
                         break;
                     }
