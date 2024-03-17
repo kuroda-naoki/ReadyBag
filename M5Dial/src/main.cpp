@@ -131,6 +131,10 @@ void ledTask(void *parameter) {
                 pixels.show();
             }
             for (int i = 0; i < 100; i++) {
+                if (isBuzzerOn) {
+                    // 8000Hzのトーンを20ミリ秒間鳴らします
+                    M5Dial.Speaker.tone(8000, 50);
+                }
                 if (isExistTag) {
                     break;
                 }
@@ -191,6 +195,7 @@ void tagExistTask(void *parameter) {
         }
         // 一定間隔でタグIDをクリア
         if (count >= READING_CLEAR_INTERVAL) {
+            // 存在しないタグの要素を取得
             jsonNotElementExists =
                 jsonElementExists ^ ((1 << jsonElementCount) - 1);
             count = 0;
@@ -238,24 +243,48 @@ void send_line() {
         return;
     }
 
-    // リクエスト送信
-    String query = String("message=") + String("Forget something?");
-    String request = String("") + "POST /api/notify HTTP/1.1\r\n" +
-                     "Host: " + host + "\r\n" + "Authorization: Bearer " +
-                     token + "\r\n" +
-                     "Content-Length: " + String(query.length()) + "\r\n" +
-                     "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
-                     query + "\r\n";
-    client.print(request);
+    String message = "忘れ物があります\n忘れ物:\n";
 
-    // 受信完了まで待機
-    while (client.connected()) {
-        String line = client.readStringUntil('\n');
-        if (line == "\r") {
-            break;
+    for (int i = 0; i < jsonElementCount; i++) {
+        if ((jsonNotElementExists & (1 << i)) != 0) {
+            message += tagJson.getNameAtIndex(i);
+            if (jsonElementCount - 1 > i) {
+                message += "\n";
+            }
         }
     }
 
+    if (message.endsWith("\n")) {
+        message.remove(message.length() - 1);
+    }
+
+    // メッセージをURLエンコード
+    message.replace("\n", "%0A");
+
+    // パラメーターを設定
+    String postData = "message=" + message;
+
+    // HTTPリクエストを送信
+    client.println("POST /api/notify HTTP/1.1");
+    client.println("Host: notify-api.line.me");
+    client.print("Authorization: Bearer ");
+    client.println(token);
+    client.println("Content-Type: application/x-www-form-urlencoded");
+    client.print("Content-Length: ");
+    client.println(postData.length());
+    client.println();
+    client.println(postData);
+
+    Serial.println("Request sent");
+
+    // 応答を読み取る
+    while (client.connected()) {
+        String line = client.readStringUntil('\n');
+        if (line == "\r") {
+            Serial.println("Headers received");
+            break;
+        }
+    }
     String line = client.readStringUntil('\n');
 }
 
@@ -330,12 +359,13 @@ void loop() {
         case TAGLIST:
             if (currentLoops != oldLoops) {
                 M5Dial.Display.fillScreen(0x4208);
-                int tagListLength = tagJson.getJsonElementCount();
-                String tagList[tagListLength];
-                for (int i = 0; i < tagListLength; i++) {
-                    tagList[i] = tagJson.getNameAtIndex(i);
+                String notExistTags[jsonElementCount];
+                for (int i = 0; i < jsonElementCount; i++) {
+                    if ((jsonNotElementExists & (1 << i)) != 0) {
+                        notExistTags[i] = tagJson.getNameAtIndex(i);
+                    }
                 }
-                showTagList(tagList, tagListLength, tagListIndex);
+                showTagList(notExistTags, jsonElementCount, tagListIndex);
                 oldLoops = currentLoops;
             }
             loop_tagList();
@@ -568,11 +598,13 @@ void loop_tagList() {
         tagListIndex = changeImageIndex(tagListIndex, tagListLength,
                                         newPosition - oldPosition);
         M5Dial.Display.fillScreen(0x4208);
-        String tagList[tagListLength];
-        for (int i = 0; i < tagListLength; i++) {
-            tagList[i] = tagJson.getNameAtIndex(i);
+        String notExistTags[jsonElementCount];
+        for (int i = 0; i < jsonElementCount; i++) {
+            if ((jsonNotElementExists & (1 << i)) != 0) {
+                notExistTags[i] = tagJson.getNameAtIndex(i);
+            }
         }
-        showTagList(tagList, tagListLength, tagListIndex);
+        showTagList(notExistTags, jsonElementCount, tagListIndex);
         oldPosition = newPosition;
     }
 
