@@ -19,9 +19,12 @@
 #include <Adafruit_NeoPixel.h>
 #include <M5Dial.h>
 #include <M5Unified.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
 
 #include "RFIDTagJson.hpp"
 #include "RFIDUart.hpp"
+#include "config.h"
 #include "pathImageFile.h"
 
 #define LED_PIN    13  // INが接続されているピンを指定
@@ -48,8 +51,9 @@ int categoryIndex = 0;
 int tagListIndex = 0;
 
 // 忘れ物検知の変数
-int jsonElementCount = 0;   // JSONファイルの要素数
-int jsonElementExists = 0;  // かばん内に存在しているかどうか
+int jsonElementCount = 0;      // JSONファイルの要素数
+int jsonElementExists = 0;     // かばん内に存在しているかどうか
+int jsonNotElementExists = 0;  // かばん内に存在していないかどうか
 
 // ダイヤルポジション変数
 long oldPosition = -999;
@@ -127,6 +131,10 @@ void ledTask(void *parameter) {
                 pixels.show();
             }
             for (int i = 0; i < 100; i++) {
+                // if (isBuzzerOn) {
+                //     // 8000Hzのトーンを20ミリ秒間鳴らします
+                //     M5Dial.Speaker.tone(8000, 50);
+                // }
                 if (isExistTag) {
                     break;
                 }
@@ -187,6 +195,9 @@ void tagExistTask(void *parameter) {
         }
         // 一定間隔でタグIDをクリア
         if (count >= READING_CLEAR_INTERVAL) {
+            // 存在しないタグの要素を取得
+            jsonNotElementExists =
+                jsonElementExists ^ ((1 << jsonElementCount) - 1);
             count = 0;
             jsonElementCount = tagJson.getJsonElementCount();
             jsonElementExists = 0;
@@ -219,6 +230,64 @@ void stopTagExistTask() {
     }
 }
 
+// line通知
+void send_line() {
+    // HTTPSへアクセス（SSL通信）するためのライブラリ
+    WiFiClientSecure client;
+
+    // サーバー証明書の検証を行わずに接続する場合に必要
+    client.setInsecure();
+
+    // LineのAPIサーバにSSL接続（ポート443:https）
+    if (!client.connect(host, 443)) {
+        return;
+    }
+
+    String message = "忘れ物があります\n忘れ物:\n";
+
+    for (int i = 0; i < jsonElementCount; i++) {
+        if ((jsonNotElementExists & (1 << i)) != 0) {
+            message += tagJson.getNameAtIndex(i);
+            if (jsonElementCount - 1 > i) {
+                message += "\n";
+            }
+        }
+    }
+
+    if (message.endsWith("\n")) {
+        message.remove(message.length() - 1);
+    }
+
+    // メッセージをURLエンコード
+    message.replace("\n", "%0A");
+
+    // パラメーターを設定
+    String postData = "message=" + message;
+
+    // HTTPリクエストを送信
+    client.println("POST /api/notify HTTP/1.1");
+    client.println("Host: notify-api.line.me");
+    client.print("Authorization: Bearer ");
+    client.println(token);
+    client.println("Content-Type: application/x-www-form-urlencoded");
+    client.print("Content-Length: ");
+    client.println(postData.length());
+    client.println();
+    client.println(postData);
+
+    Serial.println("Request sent");
+
+    // 応答を読み取る
+    while (client.connected()) {
+        String line = client.readStringUntil('\n');
+        if (line == "\r") {
+            Serial.println("Headers received");
+            break;
+        }
+    }
+    String line = client.readStringUntil('\n');
+}
+
 void setup() {
     M5_BEGIN();
     auto cfg = M5.config();
@@ -226,6 +295,14 @@ void setup() {
 
     rfidUart.init();
     tagJson.init();
+
+    // WiFi接続
+    WiFi.begin(ssid, pass);
+
+    // WiFiの接続状態を確認
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(250);
+    }
 
     M5Dial.Display.setTextColor(WHITE);
     M5Dial.Display.setTextDatum(middle_center);
@@ -282,12 +359,13 @@ void loop() {
         case TAGLIST:
             if (currentLoops != oldLoops) {
                 M5Dial.Display.fillScreen(0x4208);
-                int tagListLength = tagJson.getJsonElementCount();
-                String tagList[tagListLength];
-                for (int i = 0; i < tagListLength; i++) {
-                    tagList[i] = tagJson.getNameAtIndex(i);
+                String notExistTags[jsonElementCount];
+                for (int i = 0; i < jsonElementCount; i++) {
+                    if ((jsonNotElementExists & (1 << i)) != 0) {
+                        notExistTags[i] = tagJson.getNameAtIndex(i);
+                    }
                 }
-                showTagList(tagList, tagListLength, tagListIndex);
+                showTagList(notExistTags, jsonElementCount, tagListIndex);
                 oldLoops = currentLoops;
             }
             loop_tagList();
@@ -310,6 +388,7 @@ void loop_menu() {
             M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
         } else {
             M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
+            send_line();
         }
         isExistTagOld = isExistTag;
     }
@@ -519,11 +598,13 @@ void loop_tagList() {
         tagListIndex = changeImageIndex(tagListIndex, tagListLength,
                                         newPosition - oldPosition);
         M5Dial.Display.fillScreen(0x4208);
-        String tagList[tagListLength];
-        for (int i = 0; i < tagListLength; i++) {
-            tagList[i] = tagJson.getNameAtIndex(i);
+        String notExistTags[jsonElementCount];
+        for (int i = 0; i < jsonElementCount; i++) {
+            if ((jsonNotElementExists & (1 << i)) != 0) {
+                notExistTags[i] = tagJson.getNameAtIndex(i);
+            }
         }
-        showTagList(tagList, tagListLength, tagListIndex);
+        showTagList(notExistTags, jsonElementCount, tagListIndex);
         oldPosition = newPosition;
     }
 
@@ -555,13 +636,11 @@ void showTagList(String tagList[], int tagListLength, int index) {
         int y = ((M5Dial.Display.height() / 2) + HEIGHT_INTERVAL * i) -
                 index * HEIGHT_INTERVAL;
         if (i == index) {
-            M5Dial.Display.setTextColor(BLACK);
+            M5Dial.Display.setTextColor(60388);
         } else {
             M5Dial.Display.setTextColor(WHITE);
         }
         M5Dial.Display.drawString(tagList[i], x, y);
-        // M5Dial.Display.drawString("a", x, y); //
-        // デバッグ用の行は必要に応じてコメントアウト
     }
 }
 
