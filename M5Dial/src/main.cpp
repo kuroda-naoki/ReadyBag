@@ -131,10 +131,10 @@ void ledTask(void *parameter) {
                 pixels.show();
             }
             for (int i = 0; i < 100; i++) {
-                if (isBuzzerOn) {
-                    // 8000Hzのトーンを20ミリ秒間鳴らします
-                    M5Dial.Speaker.tone(8000, 50);
-                }
+                // if (isBuzzerOn) {
+                //     // 8000Hzのトーンを20ミリ秒間鳴らします
+                //     M5Dial.Speaker.tone(8000, 50);
+                // }
                 if (isExistTag) {
                     break;
                 }
@@ -387,8 +387,8 @@ void loop_menu() {
         if (isExistTag) {
             M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
         } else {
-            send_line();
             M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
+            send_line();
         }
         isExistTagOld = isExistTag;
     }
