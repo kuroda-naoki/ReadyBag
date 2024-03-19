@@ -66,26 +66,6 @@ bool isLedOn = true;
 // ブザーのON/OFFフラグ
 bool isBuzzerOn = true;
 
-// メニュー画面の画像配置
-String existTagImage[3] = {PATH_MENU_GREEN_BELL, PATH_MENU_GREEN_SETTING,
-                           PATH_MENU_GREEN_ADD};
-String notExistTagImage[3] = {PATH_MENU_RED_BELL, PATH_MENU_RED_SETTING,
-                              PATH_MENU_RED_ADD};
-int tagImageLength = sizeof(existTagImage) / sizeof(existTagImage[0]);
-int tagImageIndex = 0;
-
-// 設定画面の画像配置
-String offOffImage[3] = {PATH_SETTING_TOP_OFF_OFF, PATH_SETTING_RIGHT_OFF_OFF,
-                         PATH_SETTING_LEFT_OFF_OFF};
-String onOffImage[3] = {PATH_SETTING_TOP_ON_OFF, PATH_SETTING_RIGHT_ON_OFF,
-                        PATH_SETTING_LEFT_ON_OFF};
-String offOnImage[3] = {PATH_SETTING_TOP_OFF_ON, PATH_SETTING_RIGHT_OFF_ON,
-                        PATH_SETTING_LEFT_OFF_ON};
-String onOnImage[3] = {PATH_SETTING_TOP_ON_ON, PATH_SETTING_RIGHT_ON_ON,
-                       PATH_SETTING_LEFT_ON_ON};
-int settingImageLength = sizeof(offOffImage) / sizeof(offOffImage[0]);
-int settingImageIndex = 0;
-
 // メニュー画面の選択肢
 enum Loops
 {
