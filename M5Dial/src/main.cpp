@@ -309,11 +309,11 @@ void loop() {
             if (currentLoops != oldLoops) {
                 oldPosition = newPosition;
                 if (isExistTag) {
-                    M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0,
-                                       0);
+                    M5.Lcd.drawJpgFile(SPIFFS,
+                                       existTagMenuImage[menuImageIndex], 0, 0);
                 } else {
-                    M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex],
-                                       0, 0);
+                    M5.Lcd.drawJpgFile(
+                        SPIFFS, notExistTagMenuImage[menuImageIndex], 0, 0);
                 }
                 oldLoops = currentLoops;
             }
@@ -365,9 +365,10 @@ void loop_menu() {
     if (isExistTagOld != isExistTag) {
         M5Dial.Speaker.tone(8000, 20);
         if (isExistTag) {
-            M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, existTagMenuImage[menuImageIndex], 0, 0);
         } else {
-            M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, notExistTagMenuImage[menuImageIndex], 0,
+                               0);
             send_line();
         }
         isExistTagOld = isExistTag;
@@ -376,21 +377,22 @@ void loop_menu() {
     // ダイヤルがひねられたときの処理
     if (newPosition != oldPosition) {
         M5Dial.Speaker.tone(8000, 20);
-        tagImageIndex = changeImageIndex(tagImageIndex, tagImageLength,
-                                         newPosition - oldPosition);
+        menuImageIndex = changeImageIndex(menuImageIndex, menuImageLength,
+                                          newPosition - oldPosition);
         oldPosition = newPosition;
         // 選択肢をもとに画像の切り替え
         if (isExistTag) {
-            M5.Lcd.drawJpgFile(SPIFFS, existTagImage[tagImageIndex], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, existTagMenuImage[menuImageIndex], 0, 0);
         } else {
-            M5.Lcd.drawJpgFile(SPIFFS, notExistTagImage[tagImageIndex], 0, 0);
+            M5.Lcd.drawJpgFile(SPIFFS, notExistTagMenuImage[menuImageIndex], 0,
+                               0);
         }
     }
 
     // ボタンが押されたときの処理
     if (M5Dial.BtnA.wasPressed()) {
         M5Dial.Speaker.tone(8000, 20);
-        switch (tagImageIndex) {
+        switch (menuImageIndex) {
             case 0:
                 currentLoops = TAGLIST;
                 break;
@@ -552,19 +554,20 @@ void loop_addTag() {
 
 // 設定画面の画像を切り替える関数
 void changeOnOffImage() {
-    if (isLedOn) {
-        if (isBuzzerOn) {
-            M5.Lcd.drawJpgFile(SPIFFS, onOnImage[settingImageIndex], 0, 0);
-        } else {
-            M5.Lcd.drawJpgFile(SPIFFS, onOffImage[settingImageIndex], 0, 0);
-        }
-    } else {
-        if (isBuzzerOn) {
-            M5.Lcd.drawJpgFile(SPIFFS, offOnImage[settingImageIndex], 0, 0);
-        } else {
-            M5.Lcd.drawJpgFile(SPIFFS, offOffImage[settingImageIndex], 0, 0);
-        }
+    int onOffIndex = 0;
+
+    if (isBuzzerOn) {
+        onOffIndex += 1;
     }
+
+    onOffIndex = onOffIndex << 1;
+
+    if (isLedOn) {
+        onOffIndex += 1;
+    }
+
+    M5.Lcd.drawJpgFile(SPIFFS, settingImage[onOffIndex][settingImageIndex], 0,
+                       0);
 }
 
 // タグリスト画面のループ関数
